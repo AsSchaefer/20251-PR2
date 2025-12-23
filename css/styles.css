@@ -1,28 +1,67 @@
-/* Estilos generales */
+/* ------------------------------------------------------
+PR2 – Estils CSS (Interfície + Responsive)
+------------------------------------------------------
+Alumna: Alexandra Schäfer Barrientos
+Fitxer: styles.css
+Descripció:
+Full d’estils principal del projecte.
+Defineix l’aspecte general de la pàgina, el menú superior,
+els components de cerca (inputs, filtres), la graella de
+resultats (cards), els botons, i els formularis de login/
+registre. Al final inclou el comportament responsive.
+------------------------------------------------------ */
+
+/* ------------------------------------------------------
+Estructura del fitxer:
+    1. Estilos generales
+    2. Menú superior (navbar)
+    3. Dropdown menu
+    4. Spinner loader
+    5. Estils pàgina Pokémon (contenidors, filtres, llista tipus)
+    6. Inputs / Selects 
+    7. Controls de cerca (grid)
+    8. Zona d’ordenació
+    9. Resultats (cards)
+    10. Botons (unificació)
+    11. Estils login i registre
+    12. Responsive (breakpoints: 1100 / 860 / 600)
+------------------------------------------------------ */
+
+
+/* ------------------------------------------------------
+    1. ESTILS GENERALS
+-----------------------------------------------------
+    - Definir l’estètica base de tota l’aplicació.
+    - Fons, tipografia, marges i alineació global.
+------------------------------------------------------ */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0px;
     padding: 0;
-    /*background-color: #e7e7e7; /* Fondo gris claro */
     background-color: #dee2e6;
     text-align: center;
-    background-image: url('../img/container_bg.png'); /* Patrón de fondo */
+    background-image: url('../img/container_bg.png'); /* Patró de fons */
 }
 
 
-/* Estilos del menú superior */
+/* ------------------------------------------------------
+    2. MENÚ SUPERIOR (NAVBAR)
+------------------------------------------------------
+    - Crear una barra superior fixa/visual per navegar.
+    - Distribució en dues zones: logo (esquerra) + enllaços (dreta).
+------------------------------------------------------ */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: rgba(3, 37, 65); /* Color rojo de Marvel */
+    background-color: rgba(3, 37, 65);
     color: white;
     padding: 10px 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sombra para darle profundidad */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 .navbar h1{
-    color: #e9e4e4 ; /* Rojo de Marvel */
+    color: #e9e4e4;
 }
 
 .navbar-left {
@@ -31,8 +70,9 @@ body {
     align-items: flex-start;
     text-align: center;
 }
+
 .navbar-left img {
-    height: 40px; /* Ajusta la altura según sea necesario */
+    height: 40px;
     margin-bottom: 5px;
 }
 
@@ -52,13 +92,31 @@ body {
     color: white;
     text-decoration: none;
     font-size: 18px;
+
+    /* --------------------------------------------------
+         Icones i comptadors sempre en línia
+    --------------------------------------------------
+        display: inline-flex + white-space: nowrap
+        evita que els elements del link (text, icones i números)
+        saltin a una línia inferior en pantalles estretes.
+    -------------------------------------------------- */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
 }
 
 .navbar-right li a:hover {
-    color: #ffd700; /* Color dorado al pasar el mouse */
+    color: #ffd700;
 }
 
-/* Dropdown menu (submenú) */
+
+/* ------------------------------------------------------
+    3. DROPDOWN MENU (SUBMENÚ)
+------------------------------------------------------
+    - Mostrar opcions d’usuari (ex: logout) en format desplegable.
+    - El contingut apareix quan el cursor passa per sobre.
+------------------------------------------------------ */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -70,7 +128,9 @@ body {
     background-color: #838181;
     min-width: 100px;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
     z-index: 1;
+
 }
 
 .dropdown-content a {
@@ -79,10 +139,14 @@ body {
     text-decoration: none;
     display: block;
     font-size: 16px;
+    width: 100%;         
+    box-sizing: border-box;
+    border-radius: 12px;
+    
 }
 
 .dropdown-content a:hover {
-    background-color: #f2f2f2; /* Color de fondo al pasar el mouse */
+    background-color: #f2f2f2;
 }
 
 .dropdown:hover .dropdown-content {
@@ -90,16 +154,22 @@ body {
 }
 
 .dropdown:hover .dropbtn {
-    color: #ffd700; /* Color dorado al pasar el mouse */
+    color: #ffd700;
 }
 
-/* Spinner loader */
+
+/* ------------------------------------------------------
+    4. SPINNER LOADER
+------------------------------------------------------
+    - Mostrar un indicador visual mentre es carreguen dades.
+    - Acompanyat de l’efecte de “blur” per bloquejar interaccions.
+------------------------------------------------------ */
 #loader {
-    display: none; /* Oculto por defecto */
+    display: none;
     position: fixed;
     left: 50%;
     top: 50%;
-    z-index: 999; /* Asegura que se superponga al contenido */
+    z-index: 999;
     width: 60px;
     height: 60px;
     margin: -30px 0 0 -30px;
@@ -109,37 +179,524 @@ body {
     animation: spin 2s linear infinite;
 }
 
-/* Animación del spinner */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* Desenfocar el contenido mientras se carga */
 .loading #comicsContainer {
-    filter: blur(5px); /* Desenfoca el contenido */
-    pointer-events: none; /* Evita la interacción con el contenido */
-    opacity: 0.6; /* Añade un efecto de "pantalla tupida" */
+    filter: blur(5px);
+    pointer-events: none;
+    opacity: 0.6;
 }
 
-/* Estilos para la sección de búsqueda */
 
-/* Estilos para la sección de ordenación */
+/* ------------------------------------------------------
+    5. ESTILS PÀGINA POKÉMON (indice.html)
+------------------------------------------------------
+    - Definir la distribució principal del cercador.
+    - Inclou contenidors, filtres per tipus i espaiat general.
+------------------------------------------------------ */
 
-/* Estilos para el indice de Pokemons */
-
-/*.pokemon-container {
-
+/* Contenidor superior */
+.top-container {
+    width: min(1200px, 94%);
+    margin: 22px auto 10px auto;
 }
+
+/* Zona principal de filtres */
+.search-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    align-items: start;
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    padding: 40px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(2px);
+}
+
+/* Columna esquerra: filtres de tipus */
+.type-filter h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: rgba(3, 37, 65);
+    text-align: left;
+}
+
+/* Llista de tipus */
+#typeList{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    overflow: visible;
+}
+
+#typeList li{
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 700;
+
+    background-color: #f2f2f2;
+    color: rgba(3, 37, 65);
+
+    border: 1px solid rgba(3, 37, 65, 0.18);
+    border-radius: 999px;
+
+    cursor: pointer;
+    user-select: none;
+
+    transition: transform 0.06s ease-in-out, opacity 0.15s ease-in-out;
+}
+
+#typeList li:hover{
+    opacity: 0.9;
+}
+
+#typeList li:active{
+    transform: scale(0.98);
+}
+
+#typeList li.active{
+    background-color: rgba(3, 37, 65);
+    color: #ffffff;
+    border-color: rgba(3, 37, 65);
+}
+
+
+/* ------------------------------------------------------
+    6. INPUTS / SELECTS (OPTIMITZATS)
+------------------------------------------------------
+    - Reutilitzar estils entre input-group (índex) i form-group (formularis).
+    - Mateix aspecte visual, evitant duplicar propietats.
+------------------------------------------------------ */
+
+/* Contenidors */
+.input-group {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+/* Labels */
+.input-group label,
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: rgba(3, 37, 65);
+    font-weight: 700;
+}
+
+/* Inputs i selects (mateixes propietats que ja tenies) */
+.input-group input,
+.input-group select,
+.form-group input,
+.form-group select {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(3, 37, 65, 0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 15px;
+    outline: none;
+    background-color: #ffffff;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.form-group input:focus,
+.form-group select:focus {
+    border-color: rgba(3, 37, 65, 0.75);
+    box-shadow: 0 0 0 3px rgba(3, 37, 65, 0.15);
+}
+
+.form-group input::placeholder {
+    color: rgba(0, 0, 0, 0.35);
+}
+
+
+/* ------------------------------------------------------
+    7. CONTROLS DE CERCA (GRID)
+------------------------------------------------------
+    - Organitzar inputs i botons de cerca amb grid.
+    - Inclou la fila específica de pes mínim/màxim + botó.
+------------------------------------------------------ */
+.search-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.search-controls .weight-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.search-controls .button-group {
+    grid-column: 3;
+    align-self: end;
+}
+
+
+/* ------------------------------------------------------
+    8. ZONA D’ORDENACIÓ
+------------------------------------------------------  
+    - Bloc visual separat per ordenar resultats.
+    - Mateix estil de “targeta” que els filtres.
+------------------------------------------------------ */
+.sort-section {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 40px;
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(2px);
+}
+
+.sort-section label {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(3, 37, 65);
+}
+
+.sort-section select {
+    border: 1px solid rgba(3, 37, 65, 0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+
+
+
+/* ------------------------------------------------------
+    9. RESULTATS (CARDS)
+------------------------------------------------------
+    - Mostrar els Pokémon en format graella (grid).
+    - Cada element es renderitza com una card amb imatge i dades.
+------------------------------------------------------ */
+.pokemon-container {
+    width: min(1200px, 94%);
+    margin: 16px auto 12px auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
 .card {
-
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.16);
+    text-align: center;
+    backdrop-filter: blur(2px);
+    transition: transform 0.08s ease-in-out, opacity 0.15s ease-in-out;
 }
 
---Los estilos que consideréis necesarios--
-*/
+.card:hover {
+    transform: translateY(-2px);
+}
 
-/* Estilos para el detalle Pokémon*/
+.card img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    display: block;
+    margin: 6px auto 8px auto;
+}
 
-/* Estilos para las listas de Pokemon */
+.card .pokemon-name {
+    font-weight: 800;
+    color: rgba(3, 37, 65);
+    margin: 6px 0 2px 0;
+}
 
-/* Estilos para la login y registro */
+.card .pokemon-id {
+    font-size: 13px;
+    opacity: 0.75;
+    margin: 0 0 8px 0;
+}
+
+.card .pokemon-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.card .type-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background-color: rgba(3, 37, 65, 0.12);
+    color: rgba(3, 37, 65);
+}
+
+
+
+/* ------------------------------------------------------
+    10. BOTONS 
+------------------------------------------------------
+    - Compartir estils comuns entre botons principals.
+    - Mantenir la definició individual de cada botó (mides i marges).
+------------------------------------------------------ */
+#searchButton,
+#loadMore,
+#backButton {
+    border: none;
+    background-color: rgba(3, 37, 65);
+    color: #ffffff;
+    transition: transform 0.05s ease-in-out, opacity 0.15s ease-in-out;
+}
+
+#searchButton:hover,
+#loadMore:hover,
+#backButton:hover {
+    opacity: 0.92;
+}
+
+#searchButton:active,
+#loadMore:active,
+#backButton:active {
+    transform: scale(0.99);
+}
+
+/* Botó Buscar */
+#searchButton {
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Botó carregar més */
+#loadMore {
+    display: block;
+    width: min(340px, 92%);
+    margin: 6px auto 28px auto;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+#loadMore:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Botó tornar */
+#backButton {
+    display: block;
+    width: min(360px, 92%);
+    margin: 20px auto 30px auto;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+
+/* ------------------------------------------------------
+    11. ESTILS LOGIN I REGISTRE (PR2 – Entrega 1)
+------------------------------------------------------
+    - Donar format de targeta als formularis.
+    - Mantenir coherència visual amb la resta del projecte.
+------------------------------------------------------ */
+#login {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 30px 16px;
+}
+
+#login_img img {
+    height: 54px;
+    display: block;
+}
+
+#loginForm {
+    width: 100%;
+    max-width: 420px;
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    padding: 22px 22px 18px 22px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+    text-align: left;
+    backdrop-filter: blur(2px);
+}
+
+#register {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 16px;
+}
+
+#registerForm {
+    width: 100%;
+    max-width: 520px;
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    padding: 22px 22px 18px 22px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+    text-align: left;
+    backdrop-filter: blur(2px);
+}
+
+#registerForm h3 {
+    margin: 0 0 16px 0;
+    font-size: 22px;
+    color: rgba(3, 37, 65);
+    text-align: center;
+}
+
+/* Botons del login/registre */
+#loginForm button,
+#registerForm button{
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.05s ease-in-out, opacity 0.15s ease-in-out;
+}
+
+#loginForm button:hover,
+#registerForm button:hover {
+    opacity: 0.92;
+}
+
+#loginForm button:active,
+#registerForm button:active {
+    transform: scale(0.99);
+}
+
+#loginButton,
+#save {
+    margin-top: 6px;
+    background-color: rgba(3, 37, 65);
+    color: #ffffff;
+}
+
+#registration {
+    margin-top: 10px;
+    background-color: rgba(3, 37, 65, 0.15);
+    color: rgba(3, 37, 65);
+}
+
+#registerForm #loginButton  {
+    margin-top: 10px;
+    background-color: rgba(3, 37, 65, 0.15);
+    color: rgba(3, 37, 65);
+}
+
+
+
+/* ------------------------------------------------------
+    12. RESPONSIVE (BREAKPOINTS)
+------------------------------------------------------
+    - Ajustar graella, espais i alguns elements del menú
+    segons l’amplada de pantalla.
+    - Breakpoints a 1200px, 900px i 600px.
+------------------------------------------------------ */
+@media (max-width: 1200px) {
+    .pokemon-container {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .search-section {
+        padding: 28px;
+        gap: 22px;
+    }
+
+    .sort-section {
+        padding: 16px 28px;
+    }
+
+    .pokemon-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .search-controls .weight-controls {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .search-controls .button-group {
+        grid-column: auto;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .nav-text{ display:none !important; }
+
+    #loginForm,
+    #registerForm {
+        padding: 18px 16px 14px 16px;
+        border-radius: 12px;
+    }
+
+    #registerForm h3 {
+        font-size: 20px;
+    }
+
+    #login_img img {
+        height: 48px;
+    }
+
+    .top-container {
+        width: min(1200px, 92%);
+    }
+
+    .search-section {
+        padding: 18px;
+        gap: 16px;
+    }
+
+    .sort-section {
+        padding: 14px 18px;
+    }
+
+    .search-controls .button-group {
+        justify-content: stretch;
+    }
+
+    #searchButton {
+        width: 100%;
+    }
+
+    .pokemon-container {
+        grid-template-columns: 1fr;
+    }
+}

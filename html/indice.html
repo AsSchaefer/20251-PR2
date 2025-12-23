@@ -3,23 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- --------------------------------------------------
+         PR2 – Índex de Pokémon (buscador + llistat)
+    --------------------------------------------------
+         Alumna: Alexandra Schäfer Barrientos
+         Fitxer: indice.html
+        
+         Descripció:
+         Pàgina principal de l’aplicació (un cop loguejat).
+         Inclou:
+            - Navbar amb navegació i menú d’usuari (logout)
+            - Loader (spinner) durant càrregues asíncrones
+            - Filtres: text, rang de pes i tipus (dinàmic via JS)
+            - Ordenació i paginació (Load more)
+    -------------------------------------------------- -->
+
+    <!-- Icones Font Awesome (cor/ull, etc.) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Full d’estils principal del projecte -->
     <link rel="stylesheet" href="../css/styles.css">
+
     <title>Indice de Pokemons</title>
 </head>
+
 <body>
-    <!-- Menú superior -->
+
+    <!-- --------------------------------------------------
+          MENÚ SUPERIOR (NAVBAR)
+    --------------------------------------------------
+    Objectiu:
+    - Navegació entre pàgines (indice/listas/video)
+    - Mostrar comptadors (myTeamCount / wishesCount)
+    - Menú d’usuari amb opció de logout
+    IMPORTANT:
+    - No canviem classes ni IDs perquè menu.js els utilitza.
+    -------------------------------------------------- -->
     <header>
         <nav class="navbar">
+
+            <!-- Logo esquerra -->
             <div class="navbar-left">
-                <img src="../img/pokedex-uoc.png">
+                <!-- Millora: alt per accessibilitat (NO trenca res) -->
+                <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
             </div>
+
+            <!-- Links dreta -->
             <ul class="navbar-right">
                 <li><a href="indice.html">Pokemons</a></li>
-                <li><a href="listas.html">Listas
-                    <i class="fa-solid fa-heart"></i> <span style="font-size: 0.6em;" id="myTeamCount"></span>
-                    <i class="fa-solid fa-eye"></i> <span style="font-size: 0.6em;" id="wishesCount"></span>
+
+                <li>
+                    <a href="listas.html">
+                        <span class="nav-text">Listas</span>
+
+                        <!-- Comptador "myTeam" -->
+                        <i class="fa-solid fa-heart"></i>
+                        <span style="font-size: 0.6em;" id="myTeamCount"></span>
+
+                        <!-- Comptador "wishes" -->
+                        <i class="fa-solid fa-eye"></i>
+                        <span style="font-size: 0.6em;" id="wishesCount"></span>
+                    </a>
+                </li>
+
                 <li><a href="video.html">Video</a></li>
+
+                <!-- --------------------------------------------------
+                      DROPDOWN USUARI
+                --------------------------------------------------
+                IMPORTANT:
+                - Deixem l’HTML tal qual (estructura base).
+                - El comportament (logout) el gestiona menu.js
+                -------------------------------------------------- -->
                 <li class="dropdown">
                     <a href="#" class="dropbtn" id="menuButton">Usuario</a>
                     <div class="dropdown-content">
@@ -27,64 +83,149 @@
                     </div>
                 </li>
             </ul>
+
         </nav>
     </header>
 
+    <!-- --------------------------------------------------
+         LOADER (SPINNER)
+    --------------------------------------------------
+    Objectiu:
+    - Mostrar càrrega mentre fem fetch a l’API (pokemons.js)
+    - El CSS anima #loader amb @keyframes spin
+    IMPORTANT:
+    - Aquest div existeix en aquesta pàgina (a listas.html no hi és).
+    -------------------------------------------------- -->
     <div id="loader"></div>
 
+    <!-- --------------------------------------------------
+         CONTENIDOR PRINCIPAL
+    --------------------------------------------------
+    Inclou:
+    - Zona de filtres
+    - Zona d’ordenació
+    -------------------------------------------------- -->
     <div class="top-container">
-    <!--<h1>Buscador de Pokémon</h1>-->
+
+        <!-- --------------------------------------------------
+             ZONA DE FILTRES
+        --------------------------------------------------
+        Inclou:
+        - Filtres per tipus (omplert per JS a #typeList)
+        - Input de cerca per nom o número
+        - Rang de pes (min/max)
+        - Botó de cerca
+        -------------------------------------------------- -->
         <div class="search-section">
+
+            <!-- Filtres per tipus (dinàmic via JS) -->
             <div class="type-filter">
                 <h3>Filtrar por tipo</h3>
+
                 <ul id="typeList">
-                    <!-- La lista de tipos se rrellenara con  JavaScript -->
+                    <!-- Aquesta llista la genera pokemons.js amb type_list (config.js) -->
                 </ul>
             </div>
-            
+
+            <!-- Controls de cerca (text + rang de pes + botó) -->
             <div class="search-controls">
+
+                <!-- Cerca per nom o número -->
                 <div class="input-group">
                     <label for="searchInput" style="width:100%">Buscar por nombre o número</label>
-                    <input type="text" id="searchInput" placeholder="Ej: Pikachu o 025">
+
+                    <!-- Millores suaus (NO trenquen JS):
+                    - autocomplete off per evitar suggeriments estranys
+                    - inputmode per ajudar en mòbil (teclat)
+                    -->
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Ej: Pikachu o 025"
+                        autocomplete="off"
+                        inputmode="search"
+                    >
                 </div>
-                
+
+                <!-- Rang de pes -->
                 <div class="weight-controls">
+
                     <div class="input-group">
                         <label for="weightMin">Peso mínimo</label>
-                        <input type="number" id="weightMin" min="0" placeholder="0">
+                        <input
+                            type="number"
+                            id="weightMin"
+                            min="0"
+                            placeholder="0"
+                        >
                     </div>
-                    
+
                     <div class="input-group">
                         <label for="weightMax">Peso máximo</label>
-                        <input type="number" id="weightMax" min="0" placeholder="1000">
+                        <input
+                            type="number"
+                            id="weightMax"
+                            min="0"
+                            placeholder="1000"
+                        >
                     </div>
+
                 </div>
-                <!-- Botón integrado en la misma fila -->
+
+                <!-- Botó de cerca (mateixa fila) -->
                 <div class="button-group">
-                    <button id="searchButton">Buscar Pokémon</button>
+                    <!-- IMPORTANT:
+                    - Si el JS hi posa listener, aquest id es manté igual.
+                    -->
+                    <button type="button" id="searchButton">Buscar Pokémon</button>
                 </div>
+
             </div>
-            
-
         </div>
-    
-    <div class="sort-section">
-        <label for="orden">Ordenar por:</label>
-        <select id="orden">
-            <option value="idAsc">Número ↑</option>
-            <option value="idDesc">Número ↓</option>
-            <option value="nameAsc">Nombre A-Z</option>
-            <option value="nameDesc">Nombre Z-A</option>
-        </select>
-    </div>
-    </div>
-    <div id="resultados" class="pokemon-container"></div>
-    <button id="loadMore">Cargar más Pokemons</button>
 
-</body>
-    <script src="../js/config.js"></script>
+        <!-- --------------------------------------------------
+             ZONA D’ORDENACIÓ
+        --------------------------------------------------
+        Select #orden: el JS pot llegir aquest valor per ordenar.
+        -------------------------------------------------- -->
+        <div class="sort-section">
+            <label for="orden">Ordenar por:</label>
+            <select id="orden">
+                <option value="idAsc">Número ↑</option>
+                <option value="idDesc">Número ↓</option>
+                <option value="nameAsc">Nombre A-Z</option>
+                <option value="nameDesc">Nombre Z-A</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- --------------------------------------------------
+         RESULTATS (GRAELLA)
+    --------------------------------------------------
+    #resultados:
+    - Contenidor on pokemons.js pinta les cards
+    -------------------------------------------------- -->
+    <div id="resultados" class="pokemon-container"></div>
+
+    <!-- Botó de paginació (carregar més) -->
+    <button type="button" id="loadMore">Cargar más Pokemons</button>
+
+    <!-- --------------------------------------------------
+         SCRIPTS (AL FINAL DEL BODY)
+    --------------------------------------------------
+    Ordre d’importació necessari:
+        1. dades.js (constants)
+        2. clases.js (classes)
+        3. menu.js (navbar/logout)
+        4. aux.js (me me les deixo per al final)
+        5. indice (pokemons).js (lògica principal d’aquesta pàgina)
+    -------------------------------------------------- -->
+    <script src="../js/dades.js"></script>
     <script src="../js/clases.js"></script>
     <script src="../js/menu.js"></script>
-    <script src="../js/aux.js"></script>
-    <script src="../js/pokemons.js"></script>
+    <!--!<script src="../js/aux.js"></script> -->
+    <script src="../js/indice.js"></script>
+
+</body>
 </html>

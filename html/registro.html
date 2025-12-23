@@ -1,59 +1,184 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/styles.css">
-    <title>Registro de Usuario</title>
-</head>
-<body>
-    <div id="register">
-        <form id="registerForm">
-            <div>
-                <h3>Registro de usuario</h3>
-            </div>
-            <div class="form-group">
-                <label for="name">Nombre:</label>
-                <input type="text" id="name" name="name">
-            </div>
-            <div class="form-group">
-                <label for="surname">Apellidos:</label>
-                <input type="text" id="surname" name="surname">
-            </div>
-            <div class="form-group">
-                <label for="address">Dirección:</label>
-                <input type="text" id="address" name="address">
-            </div>
-            <div class="form-group">
-                <label for="city">Población:</label>
-                <select id="city" name="city">
-                    <option value="">Seleccione una población</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="postalCode">Código Postal:</label>
-                <input type="text" id="postalCode" name="postalCode">
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
-            </div>
-            <div class="form-group">
-                <label for="username">Usuario:</label>
-                <input type="text" id="username" name="username">
-            </div>
-            <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password">
-            </div>
-    
-            <button type="button" id="save">Guardar</button>
-            <button type="button" id="loginButton">Volver a Login</button>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        </form>
-    </div>  
+  <!-- --------------------------------------------------
+        PR2 – Pàgina de REGISTRE
+  --------------------------------------------------
+        Alumna: Alexandra Schäfer Barrientos
+        Fitxer: registro.html
+        
+        Descripció:
+        Formulari de registre d’usuari.
+        Les dades es validen i es guarden via JavaScript
+        (registro.js) i s’emmagatzemen a localStorage.
+
+        IMPORTANT (enunciat):
+        - Les validacions s’han de fer amb JavaScript.
+        - Per això NO fem servir validacions HTML (required, type="email", etc.).
+  -------------------------------------------------- -->
+
+  <!-- Full d’estils principal del projecte -->
+  <link rel="stylesheet" href="../css/styles.css">
+
+  <title>Registro de Usuario</title>
+</head>
+
+<body>
+
+  <!-- --------------------------------------------------
+        CONTENIDOR PRINCIPAL DE REGISTRE
+  --------------------------------------------------
+  Objectiu:
+  - Mostrar el formulari en format “targeta”
+  - Mantenir estructura base i IDs intactes per al JS
+  -------------------------------------------------- -->
+  <div id="register">
+
+    <!-- --------------------------------------------------
+          FORMULARI DE REGISTRE
+    --------------------------------------------------
+    - La gestió es fa amb JavaScript (registro.js)
+    - Evitem submit clàssic: NO volem recàrregues.
+    - onsubmit="return false;" evita submit amb Enter.
+    -------------------------------------------------- -->
+    <form id="registerForm" onsubmit="return false;">
+
+      <!-- Títol del formulari -->
+      <div>
+        <h3>Registro de usuario</h3>
+      </div>
+
+      <!-- --------------------------------------------------
+           Camps de dades personals
+      --------------------------------------------------
+      - NO usem required perquè l’enunciat exigeix validació amb JS.
+      - Mantenim autocomplete perquè és una millora d’UX i NO valida.
+      - No es canvia cap id (el JS segueix funcionant igual).
+      -------------------------------------------------- -->
+
+      <div class="form-group">
+        <label for="name">Nombre:</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          autocomplete="given-name"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="surname">Apellidos:</label>
+        <input
+          type="text"
+          id="surname"
+          name="surname"
+          autocomplete="family-name"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="address">Dirección:</label>
+        <input
+          type="text"
+          id="address"
+          name="address"
+          autocomplete="street-address"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="city">Población:</label>
+
+        <!-- --------------------------------------------------
+             Select de poblacions
+        --------------------------------------------------
+        - L’opció buida es manté com a placeholder.
+        - La validació de selecció es fa amb JavaScript.
+        -------------------------------------------------- -->
+        <select id="city" name="city">
+          <option value="">Seleccione una población</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="postalCode">Código Postal:</label>
+
+        <!-- --------------------------------------------------
+        - inputmode="numeric": teclat numèric a mòbil (no valida).
+        - autocomplete="postal-code": ajuda el navegador (no valida).
+        - type="text" per mantenir zeros inicials.
+        -------------------------------------------------- -->
+        <input
+          type="text"
+          id="postalCode"
+          name="postalCode"
+          inputmode="numeric"
+          autocomplete="postal-code"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email:</label>
+
+        <!-- --------------------------------------------------
+            - type="text" per evitar validació HTML nativa (type="email").
+            - La validació de patró d’email es fa a registro.js.
+        -------------------------------------------------- -->
+        <input
+          type="text"
+          id="email"
+          name="email"
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="username">Usuario:</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          autocomplete="username"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          autocomplete="new-password"
+        >
+      </div>
+
+      <!-- --------------------------------------------------
+      Botons
+      --------------------------------------------------
+      - type="button" per evitar submit automàtic.
+      - registro.js controla què fa cada botó.
+      -------------------------------------------------- -->
+      <button type="button" id="save">Guardar</button>
+      <button type="button" id="loginButton">Volver a Login</button>
+
+    </form>
+  </div>
+
+  <!-- --------------------------------------------------
+  SCRIPTS
+  --------------------------------------------------
+  - Es col·loquen al final per assegurar DOM carregat.
+  - Ordre necessari:
+    1. dades.js  -> defineix cities, type_list, etc.
+    2. clases.js  -> defineix User
+    3. registro.js -> usa cities + User
+  -------------------------------------------------- -->
+  <script src="../js/dades.js"></script>
+  <script src="../js/clases.js"></script>
+  <script src="../js/registro.js"></script>
+
 </body>
-<script src="../js/config.js"></script>
-<script src="../js/clases.js"></script>
-<script src="../js/registro.js"></script>
 </html>

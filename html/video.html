@@ -3,24 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- --------------------------------------------------
+         PR2 – Pàgina de vídeo
+    --------------------------------------------------
+         Alumna: Alexandra Schäfer Barrientos
+         Fitxer: video.html
+
+         Descripció:
+         Pàgina on s’inclourà el vídeo explicatiu del projecte.
+         Manté la mateixa navbar que la resta de pantalles i un
+         contenidor de text (i/o vídeo) amb instruccions.
+    -------------------------------------------------- -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="../css/styles.css">
-    <title>Lista de Películas</title>
+
+    <title>Video explicativo</title>
 </head>
+
 <body>
 
-    <!-- Menú superior -->
+    <!-- --------------------------------------------------
+    MENÚ SUPERIOR (NAVBAR)
+    -------------------------------------------------- -->
     <header>
         <nav class="navbar">
             <div class="navbar-left">
-                <img src="../img/pokedex-uoc.png">
+                <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
             </div>
+
             <ul class="navbar-right">
                 <li><a href="indice.html">Pokemons</a></li>
-                <li><a href="listas.html">Listas
-                    <i class="fa-solid fa-heart"></i> <span style="font-size: 0.6em;" id="myTeamCount"></span>
-                    <i class="fa-solid fa-eye"></i> <span style="font-size: 0.6em;" id="wishesCount"></span>
+
+                <!-- Link de Listas -->
+                <li>
+                    <a href="listas.html">
+                        <span class="nav-text">Listas</span>
+                        <i class="fa-solid fa-heart"></i>
+                        <span style="font-size: 0.6em;" id="myTeamCount"></span>
+                        <i class="fa-solid fa-eye"></i>
+                        <span style="font-size: 0.6em;" id="wishesCount"></span>
+                    </a>
+                </li>
+
                 <li><a href="video.html">Video</a></li>
+
                 <li class="dropdown">
                     <a href="#" class="dropbtn" id="menuButton">Usuario</a>
                     <div class="dropdown-content">
@@ -31,20 +59,48 @@
         </nav>
     </header>
 
-    <h1>Video explicativo</h1>
-    
-    
-    
-    <div id="VideoContainer">
-        <p>En este apartado incluiréis el video explicativo del trabajo realizado,
-            donde tendréis que incidir en los principales problemas que se os han generado
-            y en la manera en la que los habéis enfocado.</p>
-    </div>
+    <!-- --------------------------------------------------
+          CONTINGUT PRINCIPAL
+         --------------------------------------------------
+          Aquí hi haurà el vídeo explicatiu,
+          i un text amb la descripció del que s’ha de mostrar.
+    -------------------------------------------------- -->
+    <!-- CONTINGUT -->
+    <main style="padding: 24px 16px; text-align: center;">
 
-</body>
-    <script src="../js/config.js"></script>
+        <h1>Video explicativo</h1>
+
+        <div id="VideoContainer">
+            <p>
+                El que més m'ha costat d'aquesta pràctica ha estat organitzar mentalment tot el flux de l'aplicació. No només programar cada part, sinó pensar com funcionarà tot el sistema quan estigui complet: com es mouran les dades, quan es farà servir el localStorage, quan es cridarà a l’API i com s’integrarà tot amb la interfície.
+                Per aquest motiu, en alguns punts m'he avançat i he deixat parts preparades o comentades, encara que no s'implementin fins a la segona entrega, per tenir clar l'objectiu final des del principi.
+                És possible que, quan s'integri tot, calgui fer ajustos o millores per assegurar que tot funcioni correctament, però per aquesta entrega aquest és el resultat al qual he arribat.
+            </p>
+
+            <!-- VIDEO (per la 2 entrega) -->
+            <video controls style="width: min(900px, 95%); border-radius: 14px;">
+                <source src="../video/explicacio_pr2.mp4" type="video/mp4">
+            </video>
+        </div>
+
+    </main>
+
+   <!-- --------------------------------------------------
+        SCRIPTS (al final del body)
+    --------------------------------------------------
+        NOTA:
+        - En aquesta pàgina només necessitem la lògica del menú
+        (dropdown + logout).
+        - No es fa ús de l’API ni de funcionalitats de pokémons
+        en aquesta pantalla.
+        - El recompte de myTeam i wishes també es pinta des de
+        menu.js, per tant no cal cap altre script.
+    ------------------------------------------------- -->
+    <!-- <script src="../js/dades.js"></script> -->
     <script src="../js/clases.js"></script>
     <script src="../js/menu.js"></script>
-    <script src="../js/aux.js"></script>
-    <script src="../js/details.js"></script>
+    <!-- <script src="../js/aux.js"></script> -->
+    <!--  <script src="../js/detail.js"></script>-->
+
+</body>
 </html>
