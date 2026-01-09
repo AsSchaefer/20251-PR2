@@ -1,101 +1,113 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- --------------------------------------------------
-         PR2 – Llistes (Mi equipo / Deseos)
-    --------------------------------------------------
+        <!-- --------------------------------------------------
+            PR2 – Llistes (Mi equipo / Deseos)
+        --------------------------------------------------
         Alumna: Alexandra Schäfer Barrientos
         Fitxer: listas.html
-        
+
         Descripció:
-        Pàgina per visualitzar les llistes de l’usuari.
-        Inclou navbar, selector de llista, contenidors de resultats
-        i botó de retorn.
-    -------------------------------------------------- -->
+        Pàgina destinada a visualitzar les llistes d'usuari.
+        Permet seleccionar la llista activa i mostrar els Pokémon
+        corresponents en format de cards, mantenint la navegació
+        superior i un botó de retorn al llistat principal.
+        -------------------------------------------------- -->
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/styles.css">
-    <title>Lista de Pokemon</title>
-</head>
+        <!-- Icona de la pestanya del navegador -->
+        <link rel="icon" type="image/png" href="../img/pikachu.png">
 
-<body>
+        <!-- Llibreria d'icones utilitzada a la barra de navegació -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Menú superior -->
-    <header>
-        <nav class="navbar">
-            <div class="navbar-left">
-                <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+        <!-- Full d'estils principal del projecte -->
+        <link rel="stylesheet" href="../css/styles.css">
+
+        <title>Lista de Pokemon</title>
+    </head>
+
+    <body>
+
+        <!-- --------------------------------------------------
+            MENÚ SUPERIOR (NAVBAR)
+        --------------------------------------------------
+        Barra de navegació principal de l'aplicació, amb accés
+        a les diferents seccions i al menú d'usuari.
+        -------------------------------------------------- -->
+        <header>
+            <nav class="navbar">
+                <div class="navbar-left">
+                    <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+                </div>
+
+                <ul class="navbar-right">
+                    <li><a href="indice.html">Pokemons</a></li>
+
+                    <li>
+                        <a href="listas.html">
+                            <span class="nav-text">Listas</span>
+                            <i class="fa-solid fa-heart"></i>
+                            <span style="font-size: 0.6em;" id="myTeamCount"></span>
+                            <i class="fa-solid fa-eye"></i>
+                            <span style="font-size: 0.6em;" id="wishesCount"></span>
+                        </a>
+                    </li>
+
+                    <li><a href="video.html">Video</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn" id="menuButton">Usuario</a>
+                        <div class="dropdown-content">
+                            <a href="#" id="logoutButton">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- --------------------------------------------------
+            CONTENIDOR PRINCIPAL
+        --------------------------------------------------
+        Zona principal de la pàgina on es disposen el selector
+        de llista, els contenidors de resultats i el botó de retorn.
+        -------------------------------------------------- -->
+        <div class="top-container">
+
+            <!-- Selector de llista (myTeam / wishes) -->
+            <div class="sort-section">
+                <label for="listSelector">Selecciona una lista:</label>
+                <select id="listSelector">
+                    <option value="myTeam">Mi equipo</option>
+                    <option value="wishes">Deseos</option>
+                </select>
             </div>
 
-            <ul class="navbar-right">
-                <li><a href="indice.html">Pokemons</a></li>
+            <!-- Contenidor auxiliar de maquetació -->
+            <div class="main"></div>
 
-                <!-- --------------------------------------------------
-                En el HTML original aquí faltava tancar </a></li>.
-                Això pot “trencar” el DOM del menú i fer que:
-                - el dropdown no respongui bé
-                - el hover no ocupi correctament
-                - el logout sigui difícil de clicar
-                -------------------------------------------------- -->
-                <li>
-                    <a href="listas.html">
-                        <span class="nav-text">Listas</span>
-                        <i class="fa-solid fa-heart"></i>
-                        <span style="font-size: 0.6em;" id="myTeamCount"></span>
-                        <i class="fa-solid fa-eye"></i>
-                        <span style="font-size: 0.6em;" id="wishesCount"></span>
-                    </a>
-                </li>
+            <!-- Contenidor on es mostren les cards de cada llista -->
+            <div id="listasContainer" class="pokemon-container"></div>
 
-                <li><a href="video.html">Video</a></li>
+            <!-- Botó per tornar al llistat principal -->
+            <button type="button" id="backButton">Volver a la Lista de Pokemons</button>
 
-                <li class="dropdown">
-                    <a href="#" class="dropbtn" id="menuButton">Usuario</a>
-                    <div class="dropdown-content">
-                        <a href="#" id="logoutButton">Logout</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="top-container">
-
-        <div class="sort-section">
-            <label for="listSelector">Selecciona una lista:</label>
-            <select id="listSelector">
-                <option value="myTeam">Mi equipo</option>
-                <option value="wishes">Deseos</option>
-            </select>
         </div>
 
         <!-- --------------------------------------------------
-             CONTENIDOR "MAIN"
+            SCRIPTS
         --------------------------------------------------
-        Aquest div NO es toca perquè:
-        - És el placeholder on es vol pintar després el contingut
-          segons la llista seleccionada.
-        - Encara que ara estigui buit, és part de l’estructura.
+        Fitxers JavaScript necessaris per carregar dades, gestionar
+        la navegació i renderitzar el contingut de les llistes.
         -------------------------------------------------- -->
-        <div class="main"></div>
+        <script src="../js/ui.js"></script>
+        <script src="../js/dades.js"></script>
+        <script src="../js/clases.js"></script>
+        <script src="../js/aux.js"></script>
+        <script src="../js/menu.js"></script>
+        <script src="../js/listas.js"></script>
 
-        <!-- Contenidor de cards -->
-        <div id="listasContainer" class="pokemon-container"></div>
-
-        <!-- Botó tornar -->
-        <button type="button" id="backButton">Volver a la Lista de Pokemons</button>
-
-    </div>
-
-    <!-- Scripts al final del body -->
-    <script src="../js/dades.js"></script>
-    <script src="../js/clases.js"></script>
-    <script src="../js/menu.js"></script>
-    <!--<script src="../js/aux.js"></script>-->
-    <script src="../js/listas.js"></script>
-
-</body>
+    </body>
 </html>

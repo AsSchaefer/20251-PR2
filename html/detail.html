@@ -1,97 +1,103 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- --------------------------------------------------
-    PR2 – Detall de Pokémon
-    --------------------------------------------------
-    Alumna: Alexandra Schäfer Barrientos
-    Fitxer: detail.html
-    Descripció:
-    Pàgina de detall d’un Pokémon concret.
-    Mostra navbar superior, contenidor de detall (renderitzat per JS)
-    i botó per tornar al llistat.
-    -------------------------------------------------- -->
+        <!-- --------------------------------------------------
+            PR2 – Detall de Pokémon
+        --------------------------------------------------
+        Alumna: Alexandra Schäfer Barrientos
+        Fitxer: detail.html
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/styles.css">
-    <title>Detalle Pokémon</title>
-</head>
+        Descripció:
+        Pàgina de detall d'un Pokémon concret. Mostra la barra
+        de navegació superior, el contenidor de detall que es
+        renderitza amb JavaScript i un botó per tornar al llistat.
+        -------------------------------------------------- -->
 
-<body>
+        <!-- Icona de la pestanya del navegador -->
+        <link rel="icon" type="image/png" href="../img/pikachu.png">
 
-    <!-- --------------------------------------------------
-    MENÚ SUPERIOR (NAVBAR)
-    --------------------------------------------------
-    IMPORTANT:
-    - Cal tancar bé <a> i <li> per evitar que el DOM quedi trencat.
-    - Si falta algun tancament, el dropdown pot deixar de funcionar
-      (hover / click / logout).
-    -------------------------------------------------- -->
-    <header>
-        <nav class="navbar">
-            <div class="navbar-left">
-                <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+        <!-- Llibreria d'icones utilitzada a la barra de navegació -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+        <!-- Full d'estils principal del projecte -->
+        <link rel="stylesheet" href="../css/styles.css">
+
+        <title>Detalle Pokémon</title>
+    </head>
+
+    <body>
+
+        <!-- --------------------------------------------------
+            MENÚ SUPERIOR (NAVBAR)
+        --------------------------------------------------
+        Barra de navegació principal de l'aplicació, amb accés
+        a les diferents seccions i al menú d’usuari.
+        -------------------------------------------------- -->
+        <header>
+            <nav class="navbar">
+                <div class="navbar-left">
+                    <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+                </div>
+
+                <ul class="navbar-right">
+                    <li><a href="indice.html">Pokemons</a></li>
+
+                    <li>
+                        <a href="listas.html">
+                            <span class="nav-text">Listas</span>
+                            <i class="fa-solid fa-heart"></i>
+                            <span style="font-size: 0.6em;" id="myTeamCount"></span>
+                            <i class="fa-solid fa-eye"></i>
+                            <span style="font-size: 0.6em;" id="wishesCount"></span>
+                        </a>
+                    </li>
+
+                    <li><a href="video.html">Video</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn" id="menuButton">Usuario</a>
+                        <div class="dropdown-content">
+                            <a href="#" id="logoutButton">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- --------------------------------------------------
+            CONTINGUT PRINCIPAL
+        --------------------------------------------------
+        Contenidor central on es mostra la informació del Pokémon.
+        El contingut es genera dinàmicament des de detail.js.
+        -------------------------------------------------- -->
+        <main>
+            <div style="display: flex; justify-content: center;">
+                <div id="pokemonDetail" class="pokedex-card">
+                    <p>Cargando...</p>
+                </div>
             </div>
 
-            <ul class="navbar-right">
-                <li><a href="indice.html">Pokemons</a></li>
-
-                <!-- IMPORTANT: tanquem bé </a> i </li> -->
-                <li>
-                    <a href="listas.html">
-                        <span class="nav-text">Listas</span>
-                        <i class="fa-solid fa-heart"></i>
-                        <span style="font-size: 0.6em;" id="myTeamCount"></span>
-                        <i class="fa-solid fa-eye"></i>
-                        <span style="font-size: 0.6em;" id="wishesCount"></span>
-                    </a>
-                </li>
-
-                <li><a href="video.html">Video</a></li>
-
-                <li class="dropdown">
-                    <a href="#" class="dropbtn" id="menuButton">Usuario</a>
-                    <div class="dropdown-content">
-                        <a href="#" id="logoutButton">Logout</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
-    <!-- --------------------------------------------------
-    CONTINGUT PRINCIPAL
-    --------------------------------------------------
-    - #pokemonDetail es renderitza amb detail.js
-    - Mostra un "Cargando..." mentre arriba la informació
-    -------------------------------------------------- -->
-    <main>
-        <div style="display: flex; justify-content: center;">
-            <div id="pokemonDetail" class="pokedex-card">
-                <p>Cargando...</p>
+            <!-- Botó per tornar al llistat -->
+            <div>
+                <button id="backButton" class="back-button">← Volver al listado</button>
             </div>
-        </div>
+        </main>
 
-        <!-- Botó tornar al llistat -->
-        <div>
-            <button id="backButton" class="back-button">← Volver al listado</button>
-        </div>
-    </main>
+        <!-- --------------------------------------------------
+            SCRIPTS
+        --------------------------------------------------
+        Fitxers JavaScript necessaris per carregar dades, gestionar
+        la navegació i renderitzar el detall del Pokémon.
+        -------------------------------------------------- -->
+        <script src="../js/ui.js"></script>
+        <script src="../js/dades.js"></script>
+        <script src="../js/clases.js"></script>
+        <script src="../js/aux.js"></script>
+        <script src="../js/menu.js"></script>
+        <script src="../js/detail.js"></script>
 
-    <!-- --------------------------------------------------
-    SCRIPTS (al final del body)
-    --------------------------------------------------
-    Es carreguen al final per assegurar que el DOM existeix
-    abans d’executar JS.
-    -------------------------------------------------- -->
-    <script src="../js/dades.js"></script>
-    <script src="../js/clases.js"></script>
-    <script src="../js/menu.js"></script>
-    <script src="../js/aux.js"></script>
-    <script src="../js/detail.js"></script>
-
-</body>
+    </body>
 </html>

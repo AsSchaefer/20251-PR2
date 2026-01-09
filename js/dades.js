@@ -1,55 +1,59 @@
 /* ------------------------------------------------------
    PR2 – Configuració global
-   ------------------------------------------------------
+---------------------------------------------------------
    Alumna: Alexandra Schäfer Barrientos
-   Data: 23 de desembre de 2025
+   Data: 9 de gener de 2026
    Fitxer: dades.js
 
    Descripció:
-   Aquest fitxer agrupa dades i constants globals del projecte PR2.
+   Aquest fitxer centralitza totes les dades estàtiques del projecte PR2.
+   Són valors que no canvien durant l'execució i que es reutilitzen en
+   diferents pantalles (API, registre i filtres).
 
-   És un fitxer “de suport”:
-    - No conté lògica.
-    - No interactua amb el DOM.
-    - No fa crides a l’API.
+   Objectiu:
+   Evitar literals escampats pel codi i tenir un únic punt de referència
+   per a configuració i llistes fixes. Aquí no hi ha lògica ni comportament:
+   només dades compartides.
 
-    Simplement defineix informació estàtica que després reutilitzen
-    altres scripts (registre, filtres, càrrega de pokémons, etc.).
-  ------------------------------------------------------ 
+------------------------------------------------------
 
-  Estructura del fitxer:
+   Estructura del fitxer:
 
-    1. Configuració de l’API (PokeAPI)
-    2. Llista de ciutats (registre)
-    3. Llista de tipus de Pokémon (filtres)
-    4. Noms de llistes d’usuari (textos de UI)
-    
+   1. Configuració de l'API (PokeAPI)
+   2. Llista de ciutats (registre)
+   3. Llista de tipus de Pokémon (filtres)
+
 ------------------------------------------------------ */
 
 
-
 /* ------------------------------------------------------
-   1. Configuració de l’API (PokeAPI)
-   ------------------------------------------------------
-   Centralitzem aquí la URL base per evitar “strings solts” repartits
-   pel projecte. Si algun dia cal canviar l’endpoint o el límit,
-   es fa en un únic lloc.    
-   ------------------------------------------------------ */
+   1. Configuració de l'API (PokeAPI)
+------------------------------------------------------ */
+/*
+   Centralitzem la URL base de la PokeAPI perquè la resta del projecte
+   pugui construir peticions sense repetir literals.
+
+   Si en algun moment canvia l’endpoint o el criteri de càrrega,
+   només cal tocar aquest objecte.
+*/
+
 const config = {
   apiBaseUrl: "https://pokeapi.co/api/v2/pokemon?limit="
 };
 
 
-
 /* ------------------------------------------------------
-    2. Llista de ciutats (registre)
-   ------------------------------------------------------
-   Aquest array alimenta el formulari de registre (registro.js).
-   S’utilitza per:
-    - omplir el desplegable de poblacions,
-    - validar codis postals existents,
-    - i autocompletar ciutat <-> codi postal.
-   ------------------------------------------------------ */
+   2. Llista de ciutats (registre)
+------------------------------------------------------ */
+/*
+   Dades utilitzades al procés de registre d'usuari.
+
+   Aquesta llista serveix per omplir desplegables i sincronitzar
+   ciutat i codi postal. 
+
+   Afegir noves ciutats és tan simple com afegir un nou objecte.
+*/
+
 const cities = [
   { name: "Madrid", postalCode: "28001" },
   { name: "Barcelona", postalCode: "08001" },
@@ -58,13 +62,21 @@ const cities = [
 ];
 
 
-
 /* ------------------------------------------------------
-    3. Llista de tipus de Pokémon (filtres)
-   ------------------------------------------------------
-    Aquesta llista serveix per construir els filtres de tipus
-    a la interfície (indice.html & indice.js ).
-   ------------------------------------------------------ */
+   3. Llista de tipus de Pokémon (filtres)
+------------------------------------------------------ */
+/*
+   Defineix els tipus disponibles per al sistema de filtres
+   de l'índex.
+
+   Cada element té:
+   - id   : valor utilitzat a la lògica
+   - name : text que es mostra a la UI
+
+   Encara que ara id i name coincideixin, mantenim aquesta
+   estructura per facilitar canvis futurs sense tocar la UI.
+*/
+
 const type_list = [
   { id: "grass", name: "grass" },
   { id: "fire", name: "fire" },
@@ -83,16 +95,3 @@ const type_list = [
   { id: "poison", name: "poison" },
   { id: "flying", name: "flying" }
 ];
-
-
-
-/* ------------------------------------------------------
-    4. Noms de llistes d’usuari (textos de UI)
-   ------------------------------------------------------
-    Aquest objecte permet mostrar noms “humans” a la interfície
-    quan fem referència a les llistes de l’usuari.
-   ------------------------------------------------------ */
-const nomsLlistes = {
-  myTeam: "El meu equip",
-  wishes: "Desitjos"
-};

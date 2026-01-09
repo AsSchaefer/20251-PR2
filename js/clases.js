@@ -1,65 +1,127 @@
 /* ------------------------------------------------------
-    PR2.2 – Classes i persistència (Entrega 1)
+   PR2 / Entrega 2 — Model (classes + persistencia)
    ------------------------------------------------------
-    Alumna: Alexandra Schäfer Barrientos
-    Data: 23 de desembre de 2025
-    Fitxer: clases.js
-    
-    Descripció:
-    Aquest fitxer centralitza la lògica de dades:
-        - User: validacions, registre/actualització i sessió amb localStorage.
-        - Pokemon i PokemonList: models preparats per a l’Entrega 2, amb
-        conversió a JSON (guardar) i reconstrucció (recuperar).
- ------------------------------------------------------
+   Alumna: Alexandra Schäfer Barrientos
+   Data: 9 de gener de 2026
+   Fitxer: clases.js
 
-    Estructura del fitxer:
+   Descripcio:
+   Aquest fitxer concentra les classes principals del projecte i la persistencia a
+   localStorage. Aqui definim la capa de model: on guardem estat, fem validacions
+   minimes i mantenim un contracte de retorn unificat per a tota la UI.
 
-    1. Classe User
-        1.1 Camps privats i criteri d’encapsulació
-        1.2 Constructor (inicialització del model)
-        1.3 Getters i setters (validació i normalització)
-        1.4 Persistència d’instància (save / update)
-        1.5 Mètodes estàtics (usuaris i sessió)
+   Objectiu:
+   La resta del projecte ha de poder delegar aqui sense tocar localStorage ni repetir
+   regles. Si hi ha problemes (JSON corrupte, dades parcials, quota, claus inexistents),
+   preferim un fallback controlat abans que trencar la UI amb errors silenciosos o incoherents.
 
-    2. Classe Pokemon (Entrega 2)
-        2.1 Camps privats i constructor
-        2.2 Getters / setters
-        2.3 toJSON / fromJSON
+   ------------------------------------------------------
+   
+   Estructura del fitxer
 
-    3. Classe PokemonList (Entrega 2)
-        3.1 Encapsulació de col·lecció
-        3.2 Operacions bàsiques
-        3.3 toJSON / fromJSON
-        
+   1. Traça inicial de carrega del model
+
+   2. Helpers de retorn del model (resultatOK / resultatKO)
+      2.1 resultatOK()
+      2.2 resultatKO()
+
+   3. Classe User
+      3.1 Camps privats (estat intern)
+      3.1.1 Claus de persistencia (localStorage)
+      3.2 Constructor i inicialitzacio d'estat
+      3.3 Getters / Setters
+      3.4 Persistencia d'instancia
+         3.4.1 toPlainObject()
+         3.4.2 save()
+         3.4.3 update()
+
+      3.5 Usuaris (localStorage + JSON)
+      3.6 Sessio (usuari actual)
+      3.7 Usuari actual (helpers)
+      3.8 Llistes (myTeam / wishes)
+      3.9 Filtres index
+      3.10 Gestio centralitzada de llistes
+
+   4. Classe Pokemon
+      4.1 Constructor
+      4.2 Getters / Setters
+      4.3 Serialitzacio (toJSON / fromJSON)
+
+   5. Classe PokemonList
+      5.1 Constructor i estat intern
+      5.2 Getters / Setters
+      5.3 Propietat length
+      5.4 Operacions basiques
+      5.5 Serialitzacio (toJSON / fromJSON)
 ------------------------------------------------------ */
-
 
 
 /* ------------------------------------------------------
-   1. Classe User
-   ------------------------------------------------------
-    Representa un usuari registrat al sistema.
-
-    Objectiu d’aquesta classe:
-        - Garantir coherència de dades (validant quan s’assignen).
-        - Permetre persistència sense back-end mitjançant localStorage.
-
-        username actua com a identificador únic dins de la “base de dades”
-        local (array JSON d’usuaris).
+   1. Traça inicial de carrega del model
 ------------------------------------------------------ */
+UI.log("MODEL", "clases.js carregat");
+
+
+/* ------------------------------------------------------
+   2. Helpers de retorn del model (resultatOK / resultatKO)
+------------------------------------------------------ */
+/*
+  Contracte unificat del model: la UI sempre rep un objecte amb ok i message,
+  i opcionalment data. Aixo permet tractar fluxos i errors sense excepcions
+  ni formats especials (UI.alertResultat / UI.traceResult funcionen igual a tot arreu).
+*/
+
+/* ------------------------------------------------------
+   2.1 resultatOK()
+------------------------------------------------------ */
+/*
+  Retorn d'exit del model. data es opcional: quan no cal, no l'afegim per mantenir
+  el resultat net i facil de loguejar/mostrar.
+*/
+
+function resultatOK(message = "OK", data = undefined) {
+  return (data === undefined)
+    ? { ok: true, message }
+    : { ok: true, message, data };
+}
+
+/* ------------------------------------------------------
+   2.2 resultatKO()
+------------------------------------------------------ */
+/*
+  Retorn d'error del model. No llancem excepcions: preferim un KO controlat
+  per no trencar la UI i poder donar un missatge clar.
+*/
+
+function resultatKO(message = "Error") {
+  return { ok: false, message };
+}
+
+
+/* ------------------------------------------------------
+   3. Classe User
+------------------------------------------------------ */
+/*
+  Model d'usuari i persistencia associada. Aqui centralitzem:
+  - validacio i normalitzacio via setters,
+  - mini-caixet d'usuaris a localStorage,
+  - sessio simple (username actual),
+  - estat d'usuari (myTeam, wishes i filtres d'index).
+
+  La UI no ha de tocar localStorage ni conèixer claus: delega en User i el model
+  garanteix fallbacks per mantenir robustesa i no trencar la UI.
+*/
+
 class User {
 
   /* ------------------------------------------------------
-     1.1 Camps privats i criteri d’encapsulació
-    ------------------------------------------------------
-     S’utilitzen camps privats (#) perquè les dades no es puguin
-     modificar directament des de fora.
-
-     Això obliga a passar pels setters, on:
-        - normalitzem textos (trim)
-        - validem formats (CP, email, password)
-        - garantim que myTeam i wishes siguin arrays
+     3.1 Camps privats (estat intern)
   ------------------------------------------------------ */
+  /*
+    Estat protegit amb camps privats (#). Això força a passar pels setters i evita
+    deixar l'objecte en un estat incoherent des de fora del model.
+  */
+
   #name;
   #surname;
   #address;
@@ -68,27 +130,43 @@ class User {
   #email;
   #username;
   #password;
+
   #myTeam;
   #wishes;
-
+  #indexFilters;
 
   /* ------------------------------------------------------
-     1.2 Constructor (inicialització del model)
-    ------------------------------------------------------
-    Rep un objecte perquè és el format natural quan:
-        - les dades vénen d’un formulari
-        - o bé d’un JSON recuperat de localStorage
-
-        Primer inicialitzem les col·leccions del model (arrays),
-        i després assignem la resta via setters per validar des del principi.
+     3.1.1 Claus de persistencia (localStorage)
   ------------------------------------------------------ */
+  /*
+    Claus centralitzades per no repetir strings al projecte i evitar incoherencies.
+  */
+
+  static USERS_KEY = "pr2_usuaris";
+  static CURRENT_USER_KEY = "pr2_current_user";
+
+  /* ------------------------------------------------------
+     3.2 Constructor i inicialitzacio d'estat
+  ------------------------------------------------------ */
+  /*
+    Inicialitzem llistes i filtres amb valors per defecte. Aixo dona una base estable
+    per a la UI: encara que faltin dades, el model sempre te estructures coherents.
+  */
+
   constructor({ name, surname, address, city, postalCode, email, username, password }) {
 
-    // Col·leccions del model (encara buides a l’Entrega 1)
     this.#myTeam = [];
     this.#wishes = [];
 
-    // Assignació validada i normalitzada
+    this.#indexFilters = {
+      selectedTypes: [],
+      searchText: "",
+      weightMin: "",
+      weightMax: "",
+      orden: "idAsc"
+    };
+
+    // Assignem passant pels setters
     this.name = name;
     this.surname = surname;
     this.address = address;
@@ -99,190 +177,122 @@ class User {
     this.password = password;
   }
 
-
   /* ------------------------------------------------------
-     1.3 Getters i setters (validació i normalització)
-    ------------------------------------------------------
-    Criteri general de validació:
-        - Textos: string no buit (després de trim)
-        - CP: exactament 5 dígits
-        - Email: format general usuari@domini.ext
-        - Password: mínim 8 caràcters, amb lletres, números i especial
-        - Llistes: han de ser arrays
-    ------------------------------------------------------ 
-         1.3.1 Dades personals bàsiques
-    ------------------------------------------------------ */
+     3.3 Getters / Setters
+  ------------------------------------------------------ */
+  /*
+    Validacions minimes per integritat. La UI valida per UX; el model valida per assegurar
+    que el que persisteix a localStorage te sentit, encara que algu manipuli inputs.
+  */
+
   get name(){ return this.#name; }
   set name(valor){
-    if (typeof valor !== "string" || valor.trim() === "") {
-      console.error("El nom no pot estar buit.");
-      return;
-    }
+    if (typeof valor !== "string" || valor.trim() === "") return;
     this.#name = valor.trim();
   }
 
   get surname(){ return this.#surname; }
   set surname(valor){
-    if (typeof valor !== "string" || valor.trim() === "") {
-      console.error("Els cognoms no poden estar buits.");
-      return;
-    }
+    if (typeof valor !== "string" || valor.trim() === "") return;
     this.#surname = valor.trim();
   }
 
   get address(){ return this.#address; }
   set address(valor){
-    if (typeof valor !== "string" || valor.trim() === "") {
-      console.error("L'adreça no pot estar buida.");
-      return;
-    }
+    if (typeof valor !== "string" || valor.trim() === "") return;
     this.#address = valor.trim();
   }
 
   get city(){ return this.#city; }
   set city(valor){
-    if (typeof valor !== "string" || valor.trim() === "") {
-      console.error("La població no pot estar buida.");
-      return;
-    }
+    if (typeof valor !== "string" || valor.trim() === "") return;
     this.#city = valor.trim();
   }
 
-
-  /* ------------------------------------------------------ 
-     1.3.2 Formats específics (CP / email / password)
-  ------------------------------------------------------ */
   get postalCode(){ return this.#postalCode; }
   set postalCode(valor){
-    const text = String(valor).trim();
-
-    // Es guarda com a text perquè és un identificador, no un càlcul
-    if (!/^\d{5}$/.test(text)) {
-      console.error("El codi postal ha de tenir 5 dígits.");
-      return;
-    }
-
+    /*
+      El codi postal el guardem com a string i validem 5 digits per evitar valors parcials
+      o formats estranys al mini-caixet d'usuaris.
+    */
+    const text = String(valor ?? "").trim();
+    if (!/^\d{5}$/.test(text)) return;
     this.#postalCode = text;
   }
 
   get email(){ return this.#email; }
   set email(valor){
-    const text = String(valor).trim();
+    /*
+      Validacio basica d'email: no busquem perfeccio, nomes evitar errors evidents
+      abans de persistir.
+    */
+    const text = String(valor ?? "").trim();
     const patroEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // Validació general suficient per aquesta pràctica
-    if (!patroEmail.test(text)) {
-      console.error("El format de l'email no és vàlid.");
-      return;
-    }
-
+    if (!patroEmail.test(text)) return;
     this.#email = text;
   }
 
   get username(){ return this.#username; }
   set username(valor){
-    if (typeof valor !== "string" || valor.trim() === "") {
-      console.error("El nom d'usuari no pot estar buit.");
-      return;
-    }
+    if (typeof valor !== "string" || valor.trim() === "") return;
     this.#username = valor.trim();
   }
 
   get password(){ return this.#password; }
   set password(valor){
+    /*
+      Contrasenya: validacio de robustesa (8+ amb lletra, numero i simbol).
+      No normalitzem el text, nomes validem i guardem tal qual.
+    */
     const patroPassword = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
-
-    // Regla mínima de robustesa (simula un registre real)
-    if (typeof valor !== "string" || !patroPassword.test(valor)) {
-      console.error("La contrasenya ha de tenir mínim 8 caràcters, lletres, números i un caràcter especial.");
-      return;
-    }
-
+    if (typeof valor !== "string" || !patroPassword.test(valor)) return;
     this.#password = valor;
   }
 
-
-  /* ------------------------------------------------------ 
-     1.3.3 Col·leccions del model (myTeam / wishes)
-     ------------------------------------------------------ */
   get myTeam(){ return this.#myTeam; }
   set myTeam(valor){
-    if (!Array.isArray(valor)) {
-      console.error("myTeam ha de ser un array.");
-      return;
-    }
+    if (!Array.isArray(valor)) return;
     this.#myTeam = valor;
   }
 
   get wishes(){ return this.#wishes; }
   set wishes(valor){
-    if (!Array.isArray(valor)) {
-      console.error("wishes ha de ser un array.");
-      return;
-    }
+    if (!Array.isArray(valor)) return;
     this.#wishes = valor;
   }
 
+  get indexFilters(){ return this.#indexFilters; }
+  set indexFilters(valor){
+    /*
+      Reconstruim filtres amb valors segurs en lloc de copiar a cegues. Si el JSON
+      es parcial o antic, fem fallback per no trencar el render de l'index.
+    */
+    if (valor === null || typeof valor !== "object") return;
 
-  /* ------------------------------------------------------
-     1.3.4. (save / update)
-     ------------------------------------------------------
-    localStorage guarda text, així que:
-        - convertim la instància a objecte pla (sense #)
-        - guardem dins d’un array d’usuaris en format JSON
-
-        username és la clau lògica per evitar duplicats i per actualitzar.
-  ------------------------------------------------------ 
-     save()
-  ------------------------------------------------------
-     Afegeix un usuari nou si el username encara no existeix.
-  ------------------------------------------------------ */
-  save() {
-
-    // PAS 1: obtenir llista actual
-    const usuaris = User.obtenirUsuaris();
-
-    // PAS 2: validar unicitat del username
-    const jaExisteix = usuaris.some((u) => u.username === this.#username);
-    if (jaExisteix) {
-      console.error(`L'usuari '${this.#username}' ja existeix.`);
-      return false;
-    }
-
-    // PAS 3: convertir a format guardable + desar
-    usuaris.push(this.toPlainObject());
-    console.log(`Usuari '${this.#username}' guardat correctament.`);
-    return User.desarUsuaris(usuaris);
+    this.#indexFilters = {
+      selectedTypes: Array.isArray(valor.selectedTypes) ? valor.selectedTypes : [],
+      searchText: typeof valor.searchText === "string" ? valor.searchText : "",
+      weightMin: (valor.weightMin ?? ""),
+      weightMax: (valor.weightMax ?? ""),
+      orden: typeof valor.orden === "string" ? valor.orden : "idAsc"
+    };
   }
 
   /* ------------------------------------------------------
-    update()
-  ------------------------------------------------------
-  Substitueix l’usuari existent (mateix username) pel nou estat.
+     3.4 Persistencia d'instancia
   ------------------------------------------------------ */
-  update() {
-
-    // Obtenim llista actual
-    const usuaris = User.obtenirUsuaris();
-
-    // Trobem posició de l’usuari
-    const index = usuaris.findIndex((u) => u.username === this.#username);
-    if (index === -1) {
-      console.error(`No s'ha trobat l'usuari '${this.#username}' per actualitzar.`);
-      return false;
-    }
-
-    // Substituim i desem
-    usuaris[index] = this.toPlainObject();
-    console.log(`Usuari '${this.#username}' actualitzat correctament.`);
-    return User.desarUsuaris(usuaris);
-  }
+  /*
+    Persistim com a objecte pla (JSON) i no com a instancia amb metodes. Això fa el caixet
+    mes estable i evita sorpreses en serialitzacio/deserialitzacio.
+  */
 
   /* ------------------------------------------------------
-      toPlainObject()
-     ------------------------------------------------------
-      Converteix la instància a un objecte pla per serialitzar.
-     ------------------------------------------------------ */
+     3.4.1 toPlainObject()
+  ------------------------------------------------------ */
+  /*
+    Format de dades que guardem a localStorage. Es intern del model: la UI no l'ha d'usar directament.
+  */
+
   toPlainObject() {
     return {
       name: this.#name,
@@ -294,175 +304,394 @@ class User {
       username: this.#username,
       password: this.#password,
       myTeam: this.#myTeam,
-      wishes: this.#wishes
+      wishes: this.#wishes,
+      indexFilters: this.#indexFilters
     };
   }
 
-
   /* ------------------------------------------------------
-     1.5 Mètodes estàtics (usuaris i sessió)
-    ------------------------------------------------------
-     Aquests mètodes representen la “base de dades local”:
-        - lectura i escriptura d’usuaris
-        - cerca per username
-        - validació de login
-        - control de sessió (usuari actual)
+     3.4.2 save()
   ------------------------------------------------------ */
-  static USERS_KEY = "pr2_usuaris";
-  static CURRENT_USER_KEY = "pr2_current_user";
+  /*
+    Alta d'usuari: comprovem duplicat per username i persistim la col·leccio sencera.
+    Si localStorage falla, retornem KO per no deixar la UI pensant que tot ha anat be.
+  */
+
+  save() {
+    const usuaris = User.obtenirUsuaris();
+
+    if (usuaris.some((u) => u.username === this.#username)) {
+      return resultatKO("Aquest nom d'usuari ja esta registrat");
+    }
+
+    usuaris.push(this.toPlainObject());
+    const ok = User.desarUsuaris(usuaris);
+
+    return ok
+      ? resultatOK("Usuari guardat correctament")
+      : resultatKO("No s'ha pogut guardar l'usuari");
+  }
 
   /* ------------------------------------------------------
-      obtenirUsuaris()
-     ------------------------------------------------------
-      Recuperem l’array d’usuaris desat a localStorage.
-    ------------------------------------------------------ */
+     3.4.3 update()
+  ------------------------------------------------------ */
+  /*
+    Actualitzacio d'usuari: busquem per username i substituim el registre. Si no existeix
+    o no podem desar, retornem KO per mantenir consistencia de flux.
+  */
+
+  update() {
+    const usuaris = User.obtenirUsuaris();
+    const index = usuaris.findIndex((u) => u.username === this.#username);
+
+    if (index === -1) {
+      return resultatKO("No s'ha trobat l'usuari per actualitzar");
+    }
+
+    usuaris[index] = this.toPlainObject();
+    const ok = User.desarUsuaris(usuaris);
+
+    return ok
+      ? resultatOK("Usuari actualitzat correctament")
+      : resultatKO("No s'ha pogut actualitzar l'usuari");
+  }
+
+  /* ------------------------------------------------------
+     3.5 Usuaris (localStorage + JSON)
+  ------------------------------------------------------ */
+  /*
+    Porta d'entrada al mini-caixet d'usuaris. Lectura defensiva amb fallbacks a []:
+    si el JSON es corrupte, no trenquem la UI.
+  */
+
   static obtenirUsuaris() {
     const text = localStorage.getItem(User.USERS_KEY);
-
     if (text === null) return [];
 
     try {
       const usuaris = JSON.parse(text);
-      if (!Array.isArray(usuaris)) {
-        console.error("Les dades d'usuaris no tenen format d'array.");
-        return [];
-      }
-      return usuaris;
-    } catch (error) {
-      console.error("Error parsejant usuaris del localStorage:", error);
+      return Array.isArray(usuaris) ? usuaris : [];
+    } catch {
       return [];
     }
   }
 
-  /* ------------------------------------------------------
-      desarUsuaris(usuaris)
-     ------------------------------------------------------
-     Desem l’array d’usuaris a localStorage.      
-     ------------------------------------------------------ */
-
   static desarUsuaris(usuaris) {
+    /*
+      Escriptura defensiva: si hi ha quota o bloqueig, retornem false i deixem que el flux
+      superior decideixi (sense excepcions).
+    */
     try {
       localStorage.setItem(User.USERS_KEY, JSON.stringify(usuaris));
       return true;
-    } catch (error) {
-      console.error("Error guardant usuaris a localStorage:", error);
+    } catch {
       return false;
     }
   }
 
-  /* ------------------------------------------------------
-     cercarUsuari(username)
-     ------------------------------------------------------
-     Retornem l’usuari amb el username indicat, o null si no existeix.    
-     ------------------------------------------------------ */
   static cercarUsuari(username) {
-    if (typeof username !== "string" || username.trim() === "") {
-      console.error("Username invàlid per cercar usuari.");
-      return null;
-    }
-
+    /*
+      Cerca per username (netejat). Retornem usuari pla o null com a fallback controlat.
+    */
+    if (typeof username !== "string" || username.trim() === "") return null;
     const usernameNet = username.trim();
-    const usuaris = User.obtenirUsuaris();
-    return usuaris.find((u) => u.username === usernameNet) ?? null;
+    return User.obtenirUsuaris().find((u) => u.username === usernameNet) ?? null;
   }
 
-  /* ------------------------------------------------------
-      existeixUsername(username)
-     ------------------------------------------------------ 
-     Comprovem si un username ja està registrat.
-     ------------------------------------------------------ */
   static existeixUsername(username) {
+    /*
+      Helper curt per consultes de UI. Igualment, el model es defensa a save() si toca.
+    */
     return User.cercarUsuari(username) !== null;
   }
 
-  /* ------------------------------------------------------
-     validarCredencials(username, password)
-     ------------------------------------------------------
-     Validem les credencials d’accés.
-        Retornem un objecte amb dos casos possibles:
-        - { ok: false, message: "..." } si hi ha error
-        - { ok: true, user: {...} } si és correcte
-    ------------------------------------------------------ */
-  static validarCredencials(username, password) {
-
-    // PAS 1: validar entrada mínima
-    if (typeof username !== "string" || username.trim() === "") {
-      return { ok: false, message: "Has d'indicar un nom d'usuari." };
-    }
-    if (typeof password !== "string" || password === "") {
-      return { ok: false, message: "Has d'indicar una contrasenya." };
-    }
-
-    // PAS 2: cercar usuari i comparar password
-    const usuari = User.cercarUsuari(username);
-    if (usuari === null) {
-      return { ok: false, message: "Usuari no registrat." };
-    }
-    if (usuari.password !== password) {
-      return { ok: false, message: "Contrasenya incorrecta." };
-    }
-
-    return { ok: true, user: usuari };
-  }
 
   /* ------------------------------------------------------
-     establirUsuariActual(username)
-     ------------------------------------------------------
-     Desem l’username de l’usuari actual a localStorage.
-     ------------------------------------------------------ */
+     3.6 Sessio (usuari actual)
+  ------------------------------------------------------ */
+  /*
+    Sessio simple: guardem el username actual. Es suficient per protegir pantalles i
+    mantenir un flux net sense que la UI hagi de gestionar estat manualment.
+  */
+
   static establirUsuariActual(username) {
+    /*
+      Inici de sessio: validem entrada i intentem persistir. Si falla localStorage,
+      retornem KO i evitem redireccions en fals.
+    */
     if (typeof username !== "string" || username.trim() === "") {
-      console.error("No es pot establir l'usuari actual.");
-      return false;
+      return resultatKO("Username invalid per iniciar sessio");
     }
 
     try {
       localStorage.setItem(User.CURRENT_USER_KEY, username.trim());
-      return true;
-    } catch (error) {
-      console.error("Error guardant la sessió a localStorage:", error);
-      return false;
+      return resultatOK("Sessio iniciada");
+    } catch {
+      return resultatKO("No s'ha pogut iniciar sessio");
     }
   }
 
-  /* ------------------------------------------------------
-     obtenirUsuariActual()
-    ------------------------------------------------------ 
-    Recuperem l’username de l’usuari actual des de localStorage.   
-    ------------------------------------------------------ */
+
   static obtenirUsuariActual() {
-    return localStorage.getItem(User.CURRENT_USER_KEY);
+    /*
+      Retorn simple: string o null. La UI decideix si redirigeix.
+    */
+    return localStorage.getItem(User.CURRENT_USER_KEY); // string o null
   }
 
-  /* ------------------------------------------------------
-     tancarSessio()
-  - ----------------------------------------------------- 
-        Eliminem l’usuari actual de localStorage.
-    ------------------------------------------------------ */
+
   static tancarSessio() {
+    /*
+      Eliminem la clau i retornem OK. Encara que no existis, no es un error.
+    */
     localStorage.removeItem(User.CURRENT_USER_KEY);
-    return true;
+    return resultatOK("Sessio tancada");
+  }
+
+
+  static validarCredencials(username, password) {
+    /*
+      Validacio contra el mini-caixet. Retorn unificat:
+      - KO si falta info, usuari inexistent o password incorrecte
+      - OK amb dades si el login es correcte
+    */
+    if (typeof username !== "string" || username.trim() === "") {
+      return resultatKO("Has d'indicar un nom d'usuari");
+    }
+    if (typeof password !== "string" || password === "") {
+      return resultatKO("Has d'indicar una contrasenya");
+    }
+
+    const usuari = User.cercarUsuari(username);
+    if (!usuari) return resultatKO("Usuari no registrat");
+    if (usuari.password !== password) return resultatKO("Contrasenya incorrecta");
+
+    return resultatOK("Login correcte", { user: usuari });
+  }
+
+
+  /* ------------------------------------------------------
+     3.7 Usuari actual (helpers)
+  ------------------------------------------------------ */
+  /*
+    Helpers per evitar que la UI combini "sessio + cerca". Si no hi ha sessio, retornem
+    null/KO de manera controlada.
+  */
+
+  static obtenirObjecteUsuariActual() {
+    const usernameActual = User.obtenirUsuariActual();
+    if (!usernameActual) return null;
+    return User.cercarUsuari(usernameActual);
+  }
+
+
+  static actualitzarUsuariActual(usuariPlainActualitzat) {
+    /*
+      Punt centralitzat per actualitzar i desar un usuari pla. Si falta username o
+      l'usuari no existeix, retornem KO i no toquem el caixet.
+    */
+    if (!usuariPlainActualitzat || !usuariPlainActualitzat.username) {
+      return resultatKO("Dades d'usuari invalides");
+    }
+
+    const usuaris = User.obtenirUsuaris();
+    const index = usuaris.findIndex((u) => u.username === usuariPlainActualitzat.username);
+    if (index === -1) return resultatKO("Usuari no trobat");
+
+    usuaris[index] = usuariPlainActualitzat;
+
+    const ok = User.desarUsuaris(usuaris);
+    return ok ? resultatOK("Usuari actualitzat") : resultatKO("No s'ha pogut desar l'usuari");
+  }
+
+
+  /* ------------------------------------------------------
+     3.8 Llistes (myTeam / wishes)
+  ------------------------------------------------------ */
+  /*
+    Lectura i escriptura de llistes de l'usuari actual amb fallbacks a [] per robustesa.
+  */
+
+  static obtenirLlistesUsuariActual() {
+    const u = User.obtenirObjecteUsuariActual();
+
+    const myTeam = Array.isArray(u?.myTeam) ? u.myTeam : [];
+    const wishes = Array.isArray(u?.wishes) ? u.wishes : [];
+
+    return resultatOK("Llistes obtingudes", { myTeam, wishes });
+  }
+
+
+  static desarLlistesUsuariActual(myTeamIds, wishesIds) {
+    const u = User.obtenirObjecteUsuariActual();
+
+    u.myTeam = Array.isArray(myTeamIds) ? myTeamIds : [];
+    u.wishes = Array.isArray(wishesIds) ? wishesIds : [];
+
+    return User.actualitzarUsuariActual(u);
+  }
+
+
+  /* ------------------------------------------------------
+     3.9 Filtres index
+  ------------------------------------------------------ */
+  /*
+    Persistim l'estat de filtres/ordenacio per usuari. Quan recuperem, retornem sempre
+    una estructura completa (fallbacks) per no trencar l'index.
+  */
+
+  static obtenirFiltresIndexUsuariActual() {
+    const u = User.obtenirObjecteUsuariActual();
+
+    const f = (u.indexFilters && typeof u.indexFilters === "object")
+      ? u.indexFilters
+      : {};
+
+    return resultatOK("Filtres obtinguts", {
+      selectedTypes: Array.isArray(f.selectedTypes) ? f.selectedTypes : [],
+      searchText: typeof f.searchText === "string" ? f.searchText : "",
+      weightMin: f.weightMin ?? "",
+      weightMax: f.weightMax ?? "",
+      orden: typeof f.orden === "string" ? f.orden : "idAsc"
+    });
+  }
+
+
+  static desarFiltresIndexUsuariActual(filtres) {
+    const u = User.obtenirObjecteUsuariActual();
+
+    const f = (filtres && typeof filtres === "object") ? filtres : {};
+
+    u.indexFilters = {
+      selectedTypes: Array.isArray(f.selectedTypes) ? f.selectedTypes : [],
+      searchText: typeof f.searchText === "string" ? f.searchText : "",
+      weightMin: f.weightMin ?? "",
+      weightMax: f.weightMax ?? "",
+      orden: typeof f.orden === "string" ? f.orden : "idAsc"
+    };
+
+    return User.actualitzarUsuariActual(u);
+  }
+
+
+
+  /* ------------------------------------------------------
+     3.10 Gestio centralitzada de llistes
+  ------------------------------------------------------ */
+  /*
+    Operacions sobre myTeam/wishes (toggle, eliminar, consultar). Regles i persistencia
+    viuen aqui: la UI nomes demana accions i rep resultats unificats.
+  */
+
+  static alternarPokemonALlistaUsuariActual(tipusLlista, pokemonId) {
+    const u = User.obtenirObjecteUsuariActual();
+
+    if (tipusLlista !== "myTeam" && tipusLlista !== "wishes") {
+      return resultatKO("Tipus de llista no valid");
+    }
+
+    const id = Number(pokemonId);
+    if (!Number.isFinite(id)) {
+      return resultatKO("ID de Pokemon no valid");
+    }
+
+    u.myTeam = Array.isArray(u.myTeam) ? u.myTeam : [];
+    u.wishes = Array.isArray(u.wishes) ? u.wishes : [];
+
+    const esEquip = (tipusLlista === "myTeam");
+    const llista = esEquip ? u.myTeam : u.wishes;
+
+    const jaHiEs = llista.includes(id);
+
+    // Toggle: si hi es, l'elimina
+    if (jaHiEs) {
+      if (esEquip) {
+        u.myTeam = u.myTeam.filter(x => x !== id);
+      } else {
+        u.wishes = u.wishes.filter(x => x !== id);
+      }
+
+      const r = User.actualitzarUsuariActual(u);
+      return r.ok
+        ? resultatOK("Eliminat de la llista", { accio: "eliminat" })
+        : r;
+    }
+
+    // Toggle: si no hi es, l'afegeix (myTeam maxim 6)
+    if (esEquip && u.myTeam.length >= 6) {
+      return resultatKO("My equipo solo puede tener 6 Pokémon");
+    }
+
+    llista.push(id);
+
+    const r = User.actualitzarUsuariActual(u);
+    return r.ok
+      ? resultatOK("Afegit a la llista", { accio: "afegit" })
+      : r;
+  }
+
+
+  static eliminarPokemonDeLlistaUsuariActual(tipusLlista, pokemonId) {
+    /*
+      Eliminacio directa d'un id a una llista i persistencia del canvi. Validem tipus i id
+      per evitar modificar estat amb entrades incorrectes.
+    */
+    const u = User.obtenirObjecteUsuariActual();
+
+    if (tipusLlista !== "myTeam" && tipusLlista !== "wishes") {
+      return resultatKO("Tipus de llista no valid");
+    }
+
+    const id = Number(pokemonId);
+    if (!Number.isFinite(id)) {
+      return resultatKO("ID de Pokemon no valid");
+    }
+
+    u.myTeam = Array.isArray(u.myTeam) ? u.myTeam : [];
+    u.wishes = Array.isArray(u.wishes) ? u.wishes : [];
+
+    if (tipusLlista === "myTeam") {
+      u.myTeam = u.myTeam.filter(x => x !== id);
+    } else {
+      u.wishes = u.wishes.filter(x => x !== id);
+    }
+
+    return User.actualitzarUsuariActual(u);
+  }
+
+
+  static estaPokemonALlistaUsuariActual(tipusLlista, pokemonId) {
+    /*
+      Consulta tolerant per a la UI: davant qualsevol dubte (sense sessio, id invalid),
+      retornem false com a fallback segur.
+    */
+    const u = User.obtenirObjecteUsuariActual();
+    if (!u) return false;
+
+    const id = Number(pokemonId);
+    if (!Number.isFinite(id)) return false;
+
+    const llista = (tipusLlista === "myTeam")
+      ? (Array.isArray(u.myTeam) ? u.myTeam : [])
+      : (Array.isArray(u.wishes) ? u.wishes : []);
+
+    return llista.includes(id);
   }
 
 }
 
 
-
-
 /* ------------------------------------------------------
-    2. Classe Pokemon (Entrega 2)
-   ------------------------------------------------------
-    Representa un Pokémon amb les seves dades bàsiques
-    i estadístiques.
+   4. Classe Pokemon
+------------------------------------------------------ */
+/*
+  Entitat Pokemon amb normalitzacio minima i fallbacks. L'objectiu es que la UI
+  pugui accedir a camps de manera previsible (arrays sempre array, textos sempre string).
+  Incloem toJSON/fromJSON per treballar amb caixet (objectes plans) sense perdre robustesa.
+*/
 
-    Objectiu d’aquesta classe:
-        - Encapsular les dades d’un Pokémon.
-        - Permetre serialització (toJSON) i reconstrucció (fromJSON)
-        per facilitar la persistència a localStorage en l’Entrega 2.
-
-                        
-    ------------------------------------------------------ */
 class Pokemon {
+
   #id;
   #name;
   #height;
@@ -475,61 +704,96 @@ class Pokemon {
   #description;
 
   /* ------------------------------------------------------
-     2.1 Constructor
-     ------------------------------------------------------ 
-     Recep un objecte pla amb les propietats del Pokémon.    
-     ------------------------------------------------------ */
+     4.1 Constructor
+  ------------------------------------------------------ */
+  /*
+    Inicialitzem passant pels setters per aplicar el mateix criteri tant si ve de l'API
+    com si ve del caixet (JSON).
+  */
+
   constructor({ id, name, description, height, weight, baseExperience, abilities, types, sprites, stats }) {
-    this.#id = id;
-    this.#name = name;
-    this.#description = description;
-    this.#height = height;
-    this.#weight = weight;
-    this.#baseExperience = baseExperience;
-    this.#abilities = abilities;
-    this.#types = types;
-    this.#sprites = sprites;
-    this.#stats = stats; // IMPORTANT: necessari per serialitzar
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.height = height;
+    this.weight = weight;
+    this.baseExperience = baseExperience;
+    this.abilities = abilities;
+    this.types = types;
+    this.sprites = sprites;
+    this.stats = stats;
   }
 
   /* ------------------------------------------------------
-     2.2 Getters i setters
-     ------------------------------------------------------ */
-
+     4.2 Getters / Setters
+  ------------------------------------------------------ */
+  /*
+    Normalitzacio practica: quan no hi ha valor, fem fallback a "" o [] per no trencar la UI.
+  */
 
   get id(){ return this.#id; }
-  set id(valor){ this.#id = valor; }
+  set id(valor){
+    const n = Number(valor);
+    this.#id = Number.isFinite(n) ? n : valor;
+  }
 
   get name(){ return this.#name; }
-  set name(valor){ this.#name = valor; }
+  set name(valor){
+    this.#name = (valor ?? "").toString();
+  }
 
   get description(){ return this.#description; }
-  set description(valor){ this.#description = valor; }
+  set description(valor){
+    this.#description = (valor ?? "").toString();
+  }
 
   get height(){ return this.#height; }
-  set height(valor){ this.#height = valor; }
+  set height(valor){
+    const n = Number(valor);
+    this.#height = Number.isFinite(n) ? n : valor;
+  }
 
   get weight(){ return this.#weight; }
-  set weight(valor){ this.#weight = valor; }
+  set weight(valor){
+    const n = Number(valor);
+    this.#weight = Number.isFinite(n) ? n : valor;
+  }
 
   get baseExperience(){ return this.#baseExperience; }
-  set baseExperience(valor){ this.#baseExperience = valor; }
+  set baseExperience(valor){
+    const n = Number(valor);
+    this.#baseExperience = Number.isFinite(n) ? n : valor;
+  }
 
   get abilities(){ return this.#abilities; }
-  set abilities(valor){ this.#abilities = valor; }
+  set abilities(valor){
+    this.#abilities = Array.isArray(valor) ? valor : [];
+  }
 
   get types(){ return this.#types; }
-  set types(valor){ this.#types = valor; }
+  set types(valor){
+    this.#types = Array.isArray(valor) ? valor : [];
+  }
 
   get sprites(){ return this.#sprites; }
-  set sprites(valor){ this.#sprites = valor; }
+  set sprites(valor){
+    this.#sprites = (valor ?? "").toString();
+  }
 
   get stats(){ return this.#stats; }
-  set stats(valor){ this.#stats = valor; }
+  set stats(valor){
+    this.#stats = Array.isArray(valor) ? valor : [];
+  }
+
 
   /* ------------------------------------------------------
-     2.3 Serialització (toJSON / fromJSON)
-    ------------------------------------------------------ */
+     4.3 Serialitzacio (toJSON / fromJSON)
+  ------------------------------------------------------ */
+  /*
+    toJSON: format pla per guardar al caixet.
+    fromJSON: reconstruccio defensiva d'una instancia.
+  */
+
   toJSON() {
     return {
       id: this.#id,
@@ -547,63 +811,112 @@ class Pokemon {
 
 
   static fromJSON(pokemonPlain) {
-    return new Pokemon(pokemonPlain);
+    const p = (pokemonPlain && typeof pokemonPlain === "object") ? pokemonPlain : {};
+
+    return new Pokemon({
+      id: p.id ?? null,
+      name: p.name ?? "",
+      description: p.description ?? "",
+      height: p.height ?? 0,
+      weight: p.weight ?? 0,
+      baseExperience: p.baseExperience ?? 0,
+      abilities: Array.isArray(p.abilities) ? p.abilities : [],
+      types: Array.isArray(p.types) ? p.types : [],
+      sprites: p.sprites ?? "",
+      stats: Array.isArray(p.stats) ? p.stats : []
+    });
   }
 }
 
 
-
 /* ------------------------------------------------------
-    3. Classe PokemonList (Entrega 2)
-   ------------------------------------------------------
-    Encapsula una col·lecció de Pokémons.
+   5. Classe PokemonList
+------------------------------------------------------ */
+/*
+  Col·leccio de Pokemon amb estat protegit. Ens serveix per encapsular operacions comunes
+  i evitar treballar amb arrays crus a tot arreu. Manté validacions minimes per evitar
+  embrutar l'estat si arriba un Pokemon invalid.
+*/
 
-    A nivell de projecte, ens interessa perquè:
-    - centralitza afegir/eliminar
-    - i permet serialitzar la llista completa quan calgui guardar-la
-    ------------------------------------------------------ */
 class PokemonList {
+
   #pokemons;
 
+  /* ------------------------------------------------------
+     5.1 Constructor i estat intern
+  ------------------------------------------------------ */
   constructor(pokemons = []) {
-    this.#pokemons = pokemons;
+    this.#pokemons = Array.isArray(pokemons) ? pokemons : [];
   }
 
+  /* ------------------------------------------------------
+     5.2 Getters / Setters
+  ------------------------------------------------------ */
   get pokemons(){ return this.#pokemons; }
   set pokemons(valor){
-    if (!Array.isArray(valor)) {
-      console.error("PokemonList.pokemons ha de ser un array.");
-      return;
-    }
+    if (!Array.isArray(valor)) return;
     this.#pokemons = valor;
   }
 
   /* ------------------------------------------------------
-     3.2 Operacions bàsiques
-     ------------------------------------------------------*/ 
-    
-// Afegim un Pokémon a la col·lecció  
-  addPokemon(pokemon) {
-    this.#pokemons.push(pokemon);
-  }
-
-  // Eliminemun Pokémon per ID  
-  removePokemonById(pokemonId) {
-    this.#pokemons = this.#pokemons.filter((p) => p.id !== pokemonId);
+     5.3 Propietat length
+  ------------------------------------------------------ */
+  get length() {
+    return this.#pokemons.length;
   }
 
   /* ------------------------------------------------------
-  3.3 Serialització de col·lecció
+     5.4 Operacions basiques
   ------------------------------------------------------ */
+
+  addPokemon(pokemon) {
+    /*
+      Evitem afegir valors buits o sense id usable. Es una proteccio simple per no
+      contaminar la col·leccio en fluxos d'error.
+    */
+    if (!pokemon) return;
+
+    const id = Number(pokemon?.id);
+    if (!Number.isFinite(id)) return;
+
+    this.#pokemons.push(pokemon);
+  }
+
+  removePokemonById(pokemonId) {
+    /*
+      Si l'id no es numeric, no fem res. Això evita filtres estranys per entrades invalides.
+    */
+    const id = Number(pokemonId);
+    if (!Number.isFinite(id)) return;
+
+    this.#pokemons = this.#pokemons.filter((p) => Number(p?.id) !== id);
+  }
+
+  hasPokemonId(pokemonId) {
+    const id = Number(pokemonId);
+    if (!Number.isFinite(id)) return false;
+    return this.#pokemons.some((p) => Number(p?.id) === id);
+  }
+
+  toIdArray() {
+    return this.#pokemons
+      .map((p) => Number(p?.id))
+      .filter((n) => Number.isFinite(n));
+  }
+
+  /* ------------------------------------------------------
+     5.5 Serialitzacio (toJSON / fromJSON)
+  ------------------------------------------------------ */
+  /*
+    Suport per guardar i reconstruir llistes des de caixet.
+  */
+ 
   toJSON() {
-    return this.#pokemons.map((p) => p.toJSON());
+    return this.#pokemons.map((p) => (typeof p?.toJSON === "function" ? p.toJSON() : p));
   }
 
   static fromJSON(pokemonsPlainArray) {
-    if (!Array.isArray(pokemonsPlainArray)) {
-      return new PokemonList([]);
-    }
-
+    if (!Array.isArray(pokemonsPlainArray)) return new PokemonList([]);
     const instancies = pokemonsPlainArray.map((p) => Pokemon.fromJSON(p));
     return new PokemonList(instancies);
   }

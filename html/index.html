@@ -1,76 +1,91 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- --------------------------------------------------
-         PR2 – Pàgina de LOGIN
-    --------------------------------------------------
-    Alumna: Alexandra Schäfer Barrientos
-    Fitxer: index.html
-    
-    Descripció:
-    Pantalla inicial de l’aplicació.
-    Permet a l’usuari introduir credencials i accedir
-    a la pàgina de registre.
-    -------------------------------------------------- -->
+        <!-- --------------------------------------------------
+            PR2 – Pàgina de LOGIN
+        --------------------------------------------------
+        Alumna: Alexandra Schäfer Barrientos
+        Fitxer: index.html
 
-    <!-- Full d’estils principal del projecte -->
-    <link rel="stylesheet" href="../css/styles.css">
+        Descripció:
+        Pantalla inicial de l'aplicació. Permet a l'usuari
+        introduir les seves credencials per accedir a
+        l'aplicació o dirigir-se a la pàgina de registre.
+        -------------------------------------------------- -->
 
-    <title>Pokedex UOC</title>
-</head>
+        <!-- Icona de la pestanya del navegador -->
+        <link rel="icon" type="image/png" href="../img/pikachu.png">
 
-<body>
+        <!-- Full d'estils principal del projecte -->
+        <link rel="stylesheet" href="../css/styles.css">
 
-    <!-- --------------------------------------------------
-         CONTENIDOR PRINCIPAL DE LOGIN
-    -------------------------------------------------- -->
-    <div id="login">
+        <title>Pokedex UOC</title>
+    </head>
 
-        <!-- LOGO -->
-        <div id="login_img">
-            <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+    <body>
+
+        <!-- --------------------------------------------------
+            CONTENIDOR PRINCIPAL DE LOGIN
+        --------------------------------------------------
+        Contenidor que agrupa el logotip i el formulari
+        d'accés a l'aplicació.
+        -------------------------------------------------- -->
+        <div id="login">
+
+            <!-- Logotip de l’aplicació -->
+            <div id="login_img">
+                <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+            </div>
+
+            <!-- --------------------------------------------------
+                FORMULARI DE LOGIN
+            --------------------------------------------------
+            Formulari d'accés on l'usuari introdueix el nom
+            d'usuari i la contrasenya per iniciar sessió.
+            -------------------------------------------------- -->
+            <form id="loginForm" onsubmit="return false;">
+
+                <!-- Camp d’usuari -->
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        autocomplete="username"
+                    >
+                </div>
+
+                <!-- Camp de contrasenya -->
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <!-- Botons d'acció -->
+                <button type="button" id="loginButton">Aceptar</button>
+                <button type="button" id="registration">Nuevo usuario</button>
+
+            </form>
         </div>
 
         <!-- --------------------------------------------------
-             FORMULARI DE LOGIN
+            SCRIPTS
+        --------------------------------------------------
+        Fitxers JavaScript necessaris per a la lògica de
+        l'aplicació i la gestió del login.
         -------------------------------------------------- -->
-        <form id="loginForm" onsubmit="return false;">
+        <script src="../js/ui.js"></script>
+        <script src="../js/clases.js"></script>
+        <script src="../js/index.js"></script>
 
-            <!-- Camp usuari -->
-            <div class="form-group">
-                <label for="username">Usuario:</label>
-                <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    autocomplete="username"
-                >
-            </div>
-
-            <!-- Camp contrasenya -->
-            <div class="form-group">
-                <label for="password">Contraseña:</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    autocomplete="current-password"
-                >
-            </div>
-
-            <!-- Botons -->
-            <button type="button" id="loginButton">Aceptar</button>
-            <button type="button" id="registration">Nuevo usuario</button>
-
-        </form>
-    </div>
-
-    <!-- SCRIPTS -->
-    <script src="../js/clases.js"></script>
-    <script src="../js/index.js"></script>
-
-</body>
+    </body>
 </html>

@@ -1,55 +1,71 @@
 /* ------------------------------------------------------
-PR2 – Estils CSS (Interfície + Responsive)
-------------------------------------------------------
-Alumna: Alexandra Schäfer Barrientos
-Fitxer: styles.css
-Descripció:
-Full d’estils principal del projecte.
-Defineix l’aspecte general de la pàgina, el menú superior,
-els components de cerca (inputs, filtres), la graella de
-resultats (cards), els botons, i els formularis de login/
-registre. Al final inclou el comportament responsive.
------------------------------------------------------- */
+   PR2 – Estils CSS (Interfície + Responsive)
+   ------------------------------------------------------
+   Alumna: Alexandra Schäfer Barrientos
+   Fitxer: styles.css
 
-/* ------------------------------------------------------
-Estructura del fitxer:
-    1. Estilos generales
-    2. Menú superior (navbar)
-    3. Dropdown menu
-    4. Spinner loader
-    5. Estils pàgina Pokémon (contenidors, filtres, llista tipus)
-    6. Inputs / Selects 
-    7. Controls de cerca (grid)
-    8. Zona d’ordenació
-    9. Resultats (cards)
-    10. Botons (unificació)
-    11. Estils login i registre
-    12. Responsive (breakpoints: 1100 / 860 / 600)
+   Descripció:
+   Aquest full defineix l’aspecte general del projecte:
+     - Estructura base i tipografia.
+     - Menú superior i desplegable d’usuari.
+     - Loader (spinner) i efecte de bloqueig mentre carrega.
+     - Cercador (filtres, inputs, ordenació) i graella de resultats.
+     - Cards, botons, i pantalles de login / registre.
+     - Adaptació responsive amb breakpoints.
 ------------------------------------------------------ */
 
 
 /* ------------------------------------------------------
-    1. ESTILS GENERALS
------------------------------------------------------
-    - Definir l’estètica base de tota l’aplicació.
-    - Fons, tipografia, marges i alineació global.
+   1. ESTILS GENERALS
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Defineix l’estètica base del projecte (tipografia, marges i fons).
+
+   PER QUÈ ÉS IMPORTANT:
+   Aquests estils afecten totes les pàgines i donen coherència visual global.
+*/
 body {
     font-family: 'Arial', sans-serif;
     margin: 0px;
     padding: 0;
     background-color: #dee2e6;
     text-align: center;
-    background-image: url('../img/container_bg.png'); /* Patró de fons */
+
+    /* Fons general amb patró (identitat visual del projecte) */
+    background-image: url('../img/container_bg.png');
 }
 
 
 /* ------------------------------------------------------
-    2. MENÚ SUPERIOR (NAVBAR)
-------------------------------------------------------
-    - Crear una barra superior fixa/visual per navegar.
-    - Distribució en dues zones: logo (esquerra) + enllaços (dreta).
+   1.3 Header sticky
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Manté el menú visible mentre fem scroll.
+
+   PER QUÈ ES FA AMB sticky:
+   sticky combina el comportament “normal” i “fix” segons el scroll.
+*/
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* assegura que el header queda per sobre de cards i contenidors */
+}
+
+
+/* ------------------------------------------------------
+   2. MENÚ SUPERIOR (NAVBAR)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Dóna una barra superior amb:
+   - títol/logotip a l’esquerra
+   - links + comptadors a la dreta
+
+   PER QUÈ ES FA SERVIR flex:
+   Permet repartir espai i alinear verticalment de forma fàcil.
+*/
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -64,6 +80,17 @@ body {
     color: #e9e4e4;
 }
 
+
+/* ------------------------------------------------------
+   2.3 Zona esquerra
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Controla el bloc del logotip i el títol.
+
+   PER QUÈ COLUMN:
+   Permet col·locar imatge i text un sota l’altre.
+*/
 .navbar-left {
     display: flex;
     flex-direction: column;
@@ -76,6 +103,14 @@ body {
     margin-bottom: 5px;
 }
 
+
+/* ------------------------------------------------------
+   2.4 Zona dreta (links)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Presenta els enllaços del menú com una fila horitzontal.
+*/
 .navbar-right {
     list-style: none;
     margin: 0;
@@ -94,11 +129,12 @@ body {
     font-size: 18px;
 
     /* --------------------------------------------------
-         Icones i comptadors sempre en línia
-    --------------------------------------------------
-        display: inline-flex + white-space: nowrap
-        evita que els elements del link (text, icones i números)
-        saltin a una línia inferior en pantalles estretes.
+       Icones + comptadors en línia (coherència visual)
+       --------------------------------------------------
+       QUIN PROBLEMA RESOL:
+       Evita salts de línia entre icona i text/contador.
+
+       white-space: nowrap assegura que no es trenqui en dues línies.
     -------------------------------------------------- */
     display: inline-flex;
     align-items: center;
@@ -106,22 +142,38 @@ body {
     white-space: nowrap;
 }
 
+
+/* ------------------------------------------------------
+   2.5 Hover (feedback visual)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Dona feedback quan passem el ratolí per sobre (interacció clara).
+*/
 .navbar-right li a:hover {
     color: #ffd700;
 }
 
 
 /* ------------------------------------------------------
-    3. DROPDOWN MENU (SUBMENÚ)
-------------------------------------------------------
-    - Mostrar opcions d’usuari (ex: logout) en format desplegable.
-    - El contingut apareix quan el cursor passa per sobre.
+   3. MENÚ DESPLEGABLE (DROPDOWN)
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Permet tenir opcions d’usuari (logout, etc.) sense ocupar espai constant al navbar.
+
+   DECISIÓ:
+   El menú es mostra en hover (sense JS).
+*/
 .dropdown {
     position: relative;
     display: inline-block;
 }
 
+/*
+   El dropdown està ocult per defecte (display: none).
+   Es posiciona absolut respecte al contenidor .dropdown.
+*/
 .dropdown-content {
     display: none;
     position: absolute;
@@ -129,8 +181,7 @@ body {
     min-width: 100px;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
     border-radius: 12px;
-    z-index: 1;
-
+    z-index: 1; 
 }
 
 .dropdown-content a {
@@ -139,31 +190,49 @@ body {
     text-decoration: none;
     display: block;
     font-size: 16px;
-    width: 100%;         
+    width: 100%;
     box-sizing: border-box;
     border-radius: 12px;
-    
 }
 
+/*
+   Hover de cada opció del dropdown (feedback de selecció).
+*/
 .dropdown-content a:hover {
     background-color: #f2f2f2;
 }
 
+
+/* ------------------------------------------------------
+   3.3 Regla clau del dropdown
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Quan l’usuari passa el ratolí per sobre del contenidor,
+   fem visible el menú.
+*/
 .dropdown:hover .dropdown-content {
     display: block;
 }
 
+/*
+   Feedback visual sobre el botó principal del dropdown.
+*/
 .dropdown:hover .dropbtn {
     color: #ffd700;
 }
 
 
 /* ------------------------------------------------------
-    4. SPINNER LOADER
-------------------------------------------------------
-    - Mostrar un indicador visual mentre es carreguen dades.
-    - Acompanyat de l’efecte de “blur” per bloquejar interaccions.
+   4. LOADER (SPINNER) + ESTAT "LOADING"
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Mostra un spinner centrat mentre carreguem dades (feedback clar de càrrega).
+
+   PER QUÈ position: fixed:
+   El loader queda centrat encara que hi hagi scroll.
+*/
 #loader {
     display: none;
     position: fixed;
@@ -173,38 +242,78 @@ body {
     width: 60px;
     height: 60px;
     margin: -30px 0 0 -30px;
+
+    /* Spinner clàssic: cercle amb un “tros” diferent (border-top) */
     border: 8px solid #f3f3f3;
     border-radius: 50%;
     border-top: 8px solid #3498db;
+
     animation: spin 2s linear infinite;
 }
 
+
+/* ------------------------------------------------------
+   4.3 Animació del spinner
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Rotació contínua del spinner per indicar activitat.
+*/
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-.loading #comicsContainer {
-    filter: blur(5px);
-    pointer-events: none;
-    opacity: 0.6;
+
+/* ------------------------------------------------------
+   4.4 Bloqueig visual quan carreguem
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Mentre hi ha càrrega:
+   - difumina el contingut
+   - evita clics (pointer-events: none)
+   - fa el contingut més “apagat” (opacity)
+
+   NOTA:
+   Això requereix que el body (o un wrapper) rebi la classe .loading via JS.
+*/
+.loading .pokemon-container {
+  filter: blur(5px);
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 
+
 /* ------------------------------------------------------
-    5. ESTILS PÀGINA POKÉMON (indice.html)
-------------------------------------------------------
-    - Definir la distribució principal del cercador.
-    - Inclou contenidors, filtres per tipus i espaiat general.
+   5. PÀGINA INDICE (ÍNDEX POKÉMON (contenidors + filtres))
 ------------------------------------------------------ */
 
-/* Contenidor superior */
+/* ------------------------------------------------------
+   5.3 Contenidor superior general
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Defineix un ample màxim i centra els filtres,
+   mantenint marges adequats en pantalles grans i petites.
+*/
 .top-container {
     width: min(1200px, 94%);
     margin: 22px auto 10px auto;
 }
 
-/* Zona principal de filtres */
+
+/* ------------------------------------------------------
+   5.4 Panell principal de filtres
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Crea un “panell” visual per als filtres amb:
+   - fons blanc semi-transparent
+   - ombra suau
+   - espai interior (padding)
+*/
 .search-section {
     display: grid;
     grid-template-columns: 1fr;
@@ -217,7 +326,14 @@ body {
     backdrop-filter: blur(2px);
 }
 
-/* Columna esquerra: filtres de tipus */
+
+/* ------------------------------------------------------
+   5.5 Títol del bloc de filtres de tipus
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Dona jerarquia visual i coherència al títol del bloc “tipus”.
+*/
 .type-filter h3 {
     margin: 0 0 10px 0;
     font-size: 16px;
@@ -225,7 +341,14 @@ body {
     text-align: left;
 }
 
-/* Llista de tipus */
+
+/* ------------------------------------------------------
+   5.6 Llista de tipus (#typeList)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Mostra els tipus com “píndoles” clicables, amb salt de línia automàtic.
+*/
 #typeList{
     list-style: none;
     padding: 0;
@@ -238,6 +361,9 @@ body {
     overflow: visible;
 }
 
+/*
+   Cada <li> funciona com un “toggle button” de filtre.
+*/
 #typeList li{
     padding: 6px 12px;
     font-size: 13px;
@@ -263,6 +389,9 @@ body {
     transform: scale(0.98);
 }
 
+/*
+   Estat actiu: quan el tipus està seleccionat.
+*/
 #typeList li.active{
     background-color: rgba(3, 37, 65);
     color: #ffffff;
@@ -271,11 +400,12 @@ body {
 
 
 /* ------------------------------------------------------
-    6. INPUTS / SELECTS (OPTIMITZATS)
-------------------------------------------------------
-    - Reutilitzar estils entre input-group (índex) i form-group (formularis).
-    - Mateix aspecte visual, evitant duplicar propietats.
+   6. INPUTS / SELECTS
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Unifica l’estil de formularis en tot el projecte (índex, login, registre).
+*/
 
 /* Contenidors */
 .input-group {
@@ -286,7 +416,9 @@ body {
     margin-bottom: 14px;
 }
 
-/* Labels */
+/*
+   Labels consistents: mida, color i pes.
+*/
 .input-group label,
 .form-group label {
     display: block;
@@ -296,7 +428,12 @@ body {
     font-weight: 700;
 }
 
-/* Inputs i selects (mateixes propietats que ja tenies) */
+/*
+   Inputs/selects amb el mateix aspecte:
+   - amplada completa
+   - bord arrodonit
+   - padding còmode
+*/
 .input-group input,
 .input-group select,
 .form-group input,
@@ -311,6 +448,9 @@ body {
     background-color: #ffffff;
 }
 
+/*
+   Focus visible (accessibilitat i feedback d’interacció).
+*/
 .input-group input:focus,
 .input-group select:focus,
 .form-group input:focus,
@@ -325,17 +465,22 @@ body {
 
 
 /* ------------------------------------------------------
-    7. CONTROLS DE CERCA (GRID)
-------------------------------------------------------
-    - Organitzar inputs i botons de cerca amb grid.
-    - Inclou la fila específica de pes mínim/màxim + botó.
+   7. CONTROLS DE CERCA (GRID)
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Organitza els inputs de cerca en format grid per tenir una UI neta
+   i fàcil d’adaptar en responsive.
+*/
 .search-controls {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
 }
 
+/*
+   Pes mínim + màxim + botó al costat (desktop).
+*/
 .search-controls .weight-controls {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
@@ -343,6 +488,9 @@ body {
     align-items: end;
 }
 
+/*
+   Col·loquem la zona de botons a la tercera columna quan hi ha 3 columns.
+*/
 .search-controls .button-group {
     grid-column: 3;
     align-self: end;
@@ -350,11 +498,12 @@ body {
 
 
 /* ------------------------------------------------------
-    8. ZONA D’ORDENACIÓ
-------------------------------------------------------  
-    - Bloc visual separat per ordenar resultats.
-    - Mateix estil de “targeta” que els filtres.
+   8. ZONA D’ORDENACIÓ
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Dona un panell independent per ordenar resultats, separat dels filtres.
+*/
 .sort-section {
     margin-top: 20px;
     display: flex;
@@ -383,55 +532,104 @@ body {
 }
 
 
-
 /* ------------------------------------------------------
-    9. RESULTATS (CARDS)
-------------------------------------------------------
-    - Mostrar els Pokémon en format graella (grid).
-    - Cada element es renderitza com una card amb imatge i dades.
+   8.3 Selects principals (#listSelector / #orden)
 ------------------------------------------------------ */
-.pokemon-container {
-    width: min(1200px, 94%);
-    margin: 16px auto 12px auto;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+/*
+   QUIN PROBLEMA RESOL:
+   Dona als selects un aspecte coherent amb inputs i cards,
+   mantenint el desplegable natiu del navegador.
+*/
+#listSelector,
+#orden {
+    background-color: #ffffff;
+    border: 1px solid rgba(3, 37, 65, 0.25);
+    border-radius: 10px;
+    padding: 10px 12px;
+
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(3, 37, 65);
+
+    cursor: pointer;
 }
 
+#listSelector:focus,
+#orden:focus {
+    outline: none;
+    border-color: rgba(3, 37, 65, 0.75);
+    box-shadow: 0 0 0 3px rgba(3, 37, 65, 0.15);
+}
+
+
+/* ------------------------------------------------------
+   9. RESULTATS (CARDS) + MENÚS + DETAIL
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Organitza les cards en una graella de 4 columnes (desktop),
+   adaptada després amb breakpoints.
+*/
+.pokemon-container {
+    width: min(1200px, 94%);
+    margin: 75px auto 100px auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+
+/* ------------------------------------------------------
+   9.3 Card base
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Defineix el component visual principal del projecte:
+   “card” amb fons, ombra, padding i micro-animacions.
+*/
 .card {
     background-color: rgba(255, 255, 255, 0.92);
     border-radius: 14px;
-    padding: 12px;
+    padding: 20px;
+    min-height: 300px;
     box-shadow: 0 10px 18px rgba(0, 0, 0, 0.16);
     text-align: center;
     backdrop-filter: blur(2px);
     transition: transform 0.08s ease-in-out, opacity 0.15s ease-in-out;
 }
 
+/* Hover suau per indicar que és interactiu */
 .card:hover {
     transform: translateY(-2px);
 }
 
+/* Imatge centrada i ajustada sense deformar */
 .card img {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     object-fit: contain;
     display: block;
     margin: 6px auto 8px auto;
 }
 
+/* Nom i id alineats a l’esquerra per llegibilitat */
 .card .pokemon-name {
     font-weight: 800;
+    font-size: 18px;
+    text-align: left;
     color: rgba(3, 37, 65);
     margin: 6px 0 2px 0;
 }
 
 .card .pokemon-id {
-    font-size: 13px;
-    opacity: 0.75;
-    margin: 0 0 8px 0;
+    font-size: 16px;
+    text-align: left;
+    color: rgba(3, 37, 65);
+    opacity: 0.65;
+    margin: 8px 0 8px 0;
 }
 
+/* Badges de tipus: fila flexible centrada */
 .card .pokemon-types {
     display: flex;
     flex-wrap: wrap;
@@ -443,20 +641,313 @@ body {
 .card .type-badge {
     font-size: 12px;
     font-weight: 700;
-    padding: 4px 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background-color: rgba(3, 37, 65);
+    color: white;
+}
+
+
+/* ------------------------------------------------------
+   9.4 Menú de 3 punts dins la card (equipo / deseos)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Reserva una zona superior dreta dins la card per a accions ràpides.
+*/
+.card-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0px;
+}
+
+/* Wrapper per posicionar el dropdown relativament al botó */
+.card-menu-wrapper {
+    position: relative;
+}
+
+/*
+   Botó circular del menú “⋯”
+   - mida fixa
+   - ombra i animació suau
+*/
+.card-menu-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    font-size: 22px;
+    line-height: 1;
+    color: rgba(3, 37, 65);
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    transition: transform 0.08s ease-in-out;
+}
+
+.card-menu-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+}
+
+.card-menu-btn:active {
+    transform: scale(0.96);
+}
+
+/*
+   Dropdown del menú:
+   - posicionat sota el botó
+   - en columna
+   - amb ombra i cantonades arrodonides
+*/
+.card-menu-dropdown {
+    position: absolute;
+    top: 26px;
+    right: 0;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+}
+
+/* Elements clicables del dropdown */
+.card-menu-item {
+    background: none;
+    border: none;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.card-menu-item:hover {
+    background-color: rgba(3, 37, 65, 0.08);
+}
+
+/*
+   Estructura interna del botó:
+   icona + text en la mateixa línia.
+*/
+.card-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+/* ------------------------------------------------------
+   9.5 Classe clau: amagar el dropdown
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Permet que JS obri/tanqui menús sense tocar estils inline.
+*/
+.hidden {
+    display: none;
+}
+
+
+/* ------------------------------------------------------
+   9.6 LISTAS (listas.html) – Reordenació interna
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   A la pantalla de llistes, interessa reorganitzar elements interns
+   per mostrar el botó d’acció a baix de tot.
+*/
+#listasContainer .card {
+    display: flex;
+    flex-direction: column;
+}
+
+#listasContainer .pokemon-types {
+    order: 9;
+}
+
+#listasContainer .card-header {
+    order: 10;
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+
+/* ------------------------------------------------------
+   9.7 DETAIL (card ampliada + stats)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Dona format de “fitxa gran” al detall, separant:
+   - header amb títol
+   - cos amb imatge + info
+   - secció de stats
+*/
+.detail-card {
+    width: min(900px, 92%);
+    margin: 40px auto;
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    text-align: left;
+}
+
+/* Header amb fons fosc i títol en blanc (contrast) */
+.detail-header {
+    background-color:rgba(3, 37, 65);
+    padding: 14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.detail-title {
+    margin: 0;
+    font-size: 22px;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/*
+   Cos del detall en dues columnes:
+   - imatge
+   - informació
+*/
+.detail-body {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 20px;
+    padding: 18px;
+    align-items: start;
+}
+
+.detail-image img {
+    width: 260px;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.detail-description {
+    font-style: italic;
+    opacity: 0.8;
+    margin: 6px 0 16px 0;
+}
+
+/* Dades en format grid (2 columnes) per compactar informació */
+.detail-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* Tipus en format badges (coherent amb la resta de la UI) */
+.detail-types {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.detail-type-badge {
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 10px;
     border-radius: 999px;
     background-color: rgba(3, 37, 65, 0.12);
     color: rgba(3, 37, 65);
 }
 
+/* Stats com a barres per lectura visual ràpida */
+.detail-stats {
+    padding: 10px 18px 18px 18px;
+}
+
+.detail-stats-title {
+    text-align: center;
+    margin: 10px 0 14px 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: rgba(3, 37, 65);
+}
+
+.detail-stats-list {
+    display: grid;
+    gap: 10px;
+}
+
+.stat-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.stat-name {
+    font-weight: 700;
+    color: rgba(3, 37, 65);
+}
+
+.stat-bar-wrap {
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0.10);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.stat-bar {
+    height: 100%;
+    background-color: rgba(3, 37, 65);
+    border-radius: 999px;
+}
 
 
 /* ------------------------------------------------------
-    10. BOTONS 
-------------------------------------------------------
-    - Compartir estils comuns entre botons principals.
-    - Mantenir la definició individual de cada botó (mides i marges).
+   9.8 ESTATS BUITS (MISSATGES "NO RESULTS")
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Quan no hi ha resultats, el missatge:
+   - ocupa una fila completa del grid
+   - queda centrat
+   - destaca visualment per ser “estat excepcional”
+*/
+.no-results-message {
+    grid-column: 1 / -1;
+    justify-self: center;
+
+    width: min(900px, 92%);
+    margin: 40px auto;
+
+    background: none;
+    box-shadow: none;
+    padding: 0;
+
+    font-size: 34px;
+    font-weight: 900;
+    color: #d40000;
+    text-align: center;
+}
+
+
+/* ------------------------------------------------------
+   10. BOTONS (ESTIL COMÚ)
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Dona als botons principals una base comuna:
+   - mateix color
+   - mateix comportament hover/active
+*/
 #searchButton,
 #loadMore,
 #backButton {
@@ -478,7 +969,7 @@ body {
     transform: scale(0.99);
 }
 
-/* Botó Buscar */
+/* Botó Buscar (més compacte) */
 #searchButton {
     border-radius: 10px;
     padding: 11px 16px;
@@ -487,7 +978,7 @@ body {
     cursor: pointer;
 }
 
-/* Botó carregar més */
+/* Botó “carregar més” (ample i centrat) */
 #loadMore {
     display: block;
     width: min(340px, 92%);
@@ -499,12 +990,13 @@ body {
     cursor: pointer;
 }
 
+/* Estat disabled: comunica que no es pot clicar */
 #loadMore:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Botó tornar */
+/* Botó tornar (similar a loadMore però una mica més ample) */
 #backButton {
     display: block;
     width: min(360px, 92%);
@@ -518,11 +1010,57 @@ body {
 
 
 /* ------------------------------------------------------
-    11. ESTILS LOGIN I REGISTRE (PR2 – Entrega 1)
-------------------------------------------------------
-    - Donar format de targeta als formularis.
-    - Mantenir coherència visual amb la resta del projecte.
+   10.6 Botó eliminar (listas.html)
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   A llistes, el botó eliminar és l’acció principal:
+   - ocupa tota l’amplada
+   - és molt visible
+   - té icona + text en línia
+*/
+#listasContainer .btn-eliminar-llista {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    background-color: #f97316;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 25px;
+
+    margin-top: 20px;
+    padding: 8px 0px;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    cursor: pointer;
+    text-align: center;
+}
+
+#listasContainer .btn-eliminar-llista:hover {
+    background-color: rgba(3, 37, 65);
+}
+
+#listasContainer .btn-eliminar-llista:active {
+    transform: scale(0.98);
+}
+
+
+/* ------------------------------------------------------
+   11. LOGIN I REGISTRE
+------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Centra les pantalles de login/registre i dóna forma de “card” al formulari.
+*/
 #login {
     min-height: 100vh;
     display: flex;
@@ -575,7 +1113,7 @@ body {
     text-align: center;
 }
 
-/* Botons del login/registre */
+/* Botons dels formularis: base comuna */
 #loginForm button,
 #registerForm button{
     width: 100%;
@@ -599,6 +1137,7 @@ body {
     transform: scale(0.99);
 }
 
+/* Variants: primari i secundari */
 #loginButton,
 #save {
     margin-top: 6px;
@@ -619,20 +1158,22 @@ body {
 }
 
 
-
 /* ------------------------------------------------------
-    12. RESPONSIVE (BREAKPOINTS)
-------------------------------------------------------
-    - Ajustar graella, espais i alguns elements del menú
-    segons l’amplada de pantalla.
-    - Breakpoints a 1200px, 900px i 600px.
+   12. RESPONSIVE (BREAKPOINTS)
 ------------------------------------------------------ */
+/*
+   QUIN PROBLEMA RESOL:
+   Ajusta la graella de cards i espaiats en funció de l’amplada de pantalla.
+*/
+
+/* Pantalles mitjanes: 3 columnes */
 @media (max-width: 1200px) {
     .pokemon-container {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
+/* Tablets: 2 columnes + controls més compactes */
 @media (max-width: 900px) {
     .search-section {
         padding: 28px;
@@ -657,8 +1198,10 @@ body {
     }
 }
 
+/* Mòbil: 1 columna i simplificació del navbar */
 @media (max-width: 600px) {
 
+    /* Amaguem textos del navbar si hi ha poc espai */
     .nav-text{ display:none !important; }
 
     #loginForm,

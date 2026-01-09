@@ -1,106 +1,147 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- --------------------------------------------------
-         PR2 – Pàgina de vídeo
-    --------------------------------------------------
-         Alumna: Alexandra Schäfer Barrientos
-         Fitxer: video.html
+        <!-- --------------------------------------------------
+            PR2 – Pàgina de vídeo
+        --------------------------------------------------
+        Alumna: Alexandra Schäfer Barrientos
+        Fitxer: video.html
 
-         Descripció:
-         Pàgina on s’inclourà el vídeo explicatiu del projecte.
-         Manté la mateixa navbar que la resta de pantalles i un
-         contenidor de text (i/o vídeo) amb instruccions.
-    -------------------------------------------------- -->
+        Descripció:
+        Pàgina destinada a mostrar el vídeo explicatiu del
+        projecte. Manté la mateixa barra de navegació que
+        la resta de pantalles i un contenidor central amb
+        contingut multimèdia i text descriptiu.
+        -------------------------------------------------- -->
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../css/styles.css">
+        <!-- Icona de la pestanya del navegador -->
+        <link rel="icon" type="image/png" href="../img/pikachu.png">
 
-    <title>Video explicativo</title>
-</head>
+        <!-- Llibreria d'icones utilitzada a la barra de navegació -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-<body>
+        <!-- Full d'estils principal del projecte -->
+        <link rel="stylesheet" href="../css/styles.css">
 
-    <!-- --------------------------------------------------
-    MENÚ SUPERIOR (NAVBAR)
-    -------------------------------------------------- -->
-    <header>
-        <nav class="navbar">
-            <div class="navbar-left">
-                <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+        <title>Video explicativo</title>
+    </head>
+
+    <body>
+
+        <!-- --------------------------------------------------
+            MENÚ SUPERIOR (NAVBAR)
+        --------------------------------------------------
+        Barra de navegació principal de l'aplicació, comuna
+        a totes les pantalles privades del projecte.
+        -------------------------------------------------- -->
+        <header>
+            <nav class="navbar">
+                <div class="navbar-left">
+                    <img src="../img/pokedex-uoc.png" alt="Pokedex UOC">
+                </div>
+
+                <ul class="navbar-right">
+                    <li><a href="indice.html">Pokemons</a></li>
+
+                    <li>
+                        <a href="listas.html">
+                            <span class="nav-text">Listas</span>
+                            <i class="fa-solid fa-heart"></i>
+                            <span style="font-size: 0.6em;" id="myTeamCount"></span>
+                            <i class="fa-solid fa-eye"></i>
+                            <span style="font-size: 0.6em;" id="wishesCount"></span>
+                        </a>
+                    </li>
+
+                    <li><a href="video.html">Video</a></li>
+
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn" id="menuButton">Usuario</a>
+                        <div class="dropdown-content">
+                            <a href="#" id="logoutButton">Logout</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- --------------------------------------------------
+            CONTINGUT PRINCIPAL
+        --------------------------------------------------
+        Zona central de la pàgina on es mostra el contingut
+        explicatiu del projecte en format de text i vídeo.
+        -------------------------------------------------- -->
+        <main style="padding: 24px 16px; text-align: center;">
+
+            <h1>Video explicativo</h1>
+
+            <div id="VideoContainer">
+        
+                <!-- Vídeo explicatiu del projecte -->
+                <video controls style="width: min(900px, 95%); border-radius: 14px;">
+                    <source src="../video/explicacio_pr2.mp4" type="video/mp4">
+                </video>
+
+                <div class="video-description" style="max-width: 900px; margin: 32px auto 0; text-align: left; line-height: 1.6;">
+
+                    <h2 style="margin-bottom: 12px;">Reflexió sobre el desenvolupament del projecte</h2>
+
+                    <p>
+                        Una de les parts que més m'ha costat d'aquesta pràctica ha estat la
+                        <strong>factorització i la modularització del codi</strong> per evitar
+                        duplicacions i mantenir una arquitectura clara.
+                    </p>
+
+                    <p>
+                        Inicialment tenia l'aplicació funcionant, però quan vaig començar a separar
+                        responsabilitats -interfície, model, persistència i utilitats compartides-
+                        em vaig adonar que <strong>modularitzar un projecte ja avançat pot generar
+                        conflictes</strong> si no sha planificat des del principi.
+                        Canvis en l'ordre de càrrega dels scripts o en dependències entre fitxers
+                        van provocar errors que vaig haver de resoldre refent parts del codi.
+                    </p>
+
+                    <p>
+                        Aquest procés em va portar a crear <strong>funcions reutilitzables</strong>
+                        i a centralitzar la lògica comuna, especialment en la generació de cards,
+                        la gestió del caixet i les accions sobre les llistes d'usuari.
+                        Tot i ser un esforç extra, ha millorat molt la mantenibilitat del projecte.
+                    </p>
+
+                    <p>
+                        També he experimentat una diferència clara entre partir d'un
+                        <strong>codi base proporcionat</strong> i desenvolupar-ho tot des de zero.
+                        El codi inicial de GitHub m'ha ajudat a avançar més ràpid, però alhora,
+                        tenir estructures HTML ja definides ha limitat alguns canvis i ha fet
+                        més complex adaptar el projecte a la meva pròpia arquitectura.
+                    </p>
+
+                    <p>
+                        Com a conclusió, aquest projecte m'ha ajudat a entendre que
+                        <strong>JavaScript no és complex només per la sintaxi</strong>, sinó per
+                        la gestió de l'estat, els esdeveniments, la persistència de dades i
+                        l'organització del codi. Tot i les dificultats, considero que ha estat
+                        una experiència clau per consolidar una visió més estructurada com a
+                        programadora en formació.
+                    </p>
+
+                </div>
+
             </div>
 
-            <ul class="navbar-right">
-                <li><a href="indice.html">Pokemons</a></li>
+        </main>
 
-                <!-- Link de Listas -->
-                <li>
-                    <a href="listas.html">
-                        <span class="nav-text">Listas</span>
-                        <i class="fa-solid fa-heart"></i>
-                        <span style="font-size: 0.6em;" id="myTeamCount"></span>
-                        <i class="fa-solid fa-eye"></i>
-                        <span style="font-size: 0.6em;" id="wishesCount"></span>
-                    </a>
-                </li>
+        <!-- --------------------------------------------------
+            SCRIPTS
+        --------------------------------------------------
+        Fitxers JavaScript necessaris per a la gestió del menú
+        de navegació i de la sessió d’usuari.
+        -------------------------------------------------- -->
+        <script src="../js/clases.js"></script>
+        <script src="../js/menu.js"></script>
 
-                <li><a href="video.html">Video</a></li>
-
-                <li class="dropdown">
-                    <a href="#" class="dropbtn" id="menuButton">Usuario</a>
-                    <div class="dropdown-content">
-                        <a href="#" id="logoutButton">Logout</a>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-    </header>
-
-    <!-- --------------------------------------------------
-          CONTINGUT PRINCIPAL
-         --------------------------------------------------
-          Aquí hi haurà el vídeo explicatiu,
-          i un text amb la descripció del que s’ha de mostrar.
-    -------------------------------------------------- -->
-    <!-- CONTINGUT -->
-    <main style="padding: 24px 16px; text-align: center;">
-
-        <h1>Video explicativo</h1>
-
-        <div id="VideoContainer">
-            <p>
-                El que més m'ha costat d'aquesta pràctica ha estat organitzar mentalment tot el flux de l'aplicació. No només programar cada part, sinó pensar com funcionarà tot el sistema quan estigui complet: com es mouran les dades, quan es farà servir el localStorage, quan es cridarà a l’API i com s’integrarà tot amb la interfície.
-                Per aquest motiu, en alguns punts m'he avançat i he deixat parts preparades o comentades, encara que no s'implementin fins a la segona entrega, per tenir clar l'objectiu final des del principi.
-                És possible que, quan s'integri tot, calgui fer ajustos o millores per assegurar que tot funcioni correctament, però per aquesta entrega aquest és el resultat al qual he arribat.
-            </p>
-
-            <!-- VIDEO (per la 2 entrega) -->
-            <video controls style="width: min(900px, 95%); border-radius: 14px;">
-                <source src="../video/explicacio_pr2.mp4" type="video/mp4">
-            </video>
-        </div>
-
-    </main>
-
-   <!-- --------------------------------------------------
-        SCRIPTS (al final del body)
-    --------------------------------------------------
-        NOTA:
-        - En aquesta pàgina només necessitem la lògica del menú
-        (dropdown + logout).
-        - No es fa ús de l’API ni de funcionalitats de pokémons
-        en aquesta pantalla.
-        - El recompte de myTeam i wishes també es pinta des de
-        menu.js, per tant no cal cap altre script.
-    ------------------------------------------------- -->
-    <!-- <script src="../js/dades.js"></script> -->
-    <script src="../js/clases.js"></script>
-    <script src="../js/menu.js"></script>
-    <!-- <script src="../js/aux.js"></script> -->
-    <!--  <script src="../js/detail.js"></script>-->
-
-</body>
+    </body>
 </html>

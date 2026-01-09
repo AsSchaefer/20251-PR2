@@ -1,73 +1,75 @@
 /* ------------------------------------------------------
-    PR2 – Gestió del login (interfície)
-   ------------------------------------------------------
-    Alumna: Alexandra Schäfer Barrientos
-    Data: 23 de desembre de 2025
-    Fitxer: index.js
+   PR2 – Gestió del login (interfície)
+---------------------------------------------------------
+   Alumna: Alexandra Schäfer Barrientos
+   Data: 9 de gener de 2026
+   Fitxer: index.js
 
-    Descripció:
-    Aquest fitxer controla el login des de la interfície.
-    
-    Aquí definim el flux complet de login:
-        - recollim el que l’usuari escriu,
-        - demanem al model si és correcte,
-        - i decidim què passa a la pantalla (missatge / sessió / redirecció).    
-    ------------------------------------------------------
+   Descripció:
+   Aquest fitxer controla la pantalla de login (index.html) des de la
+   interfície. Aquí ens encarreguem exclusivament de la interacció amb
+   l’usuari: llegir el formulari, reaccionar als clics i gestionar la
+   navegació segons el resultat del login.
 
-    Estructura del fitxer:
+   Objectiu:
+   Definir el flux complet d'inici de sessió sense barrejar responsabilitats.
+   Aquest fitxer només recull dades i delega decisions al model (User).
+   La validació real, la gestió de sessió i la persistència formen part
+   de la lògica del sistema i no es resolen aquí.
 
-    1. Punt d’entrada (DOMContentLoaded)
+------------------------------------------------------
+   Estructura del fitxer:
 
-    2. Preparació del formulari
-        2.1 Captura d’elements del DOM
-        2.2 Comprovació mínima d’estructura
-        
-    3. Comprovació de sessió activa
+   1. Traça inicial de càrrega
+   2. Inicialització quan el DOM està llest
+      2.1 Captura d'elements del DOM
+      2.2 Comprovació d'elements obligatoris
+      2.3 Comprovació de sessió existent
+      2.4 Gestió del login
+      2.5 Accés a registre
 
-    4. Flux de login (click)
-        4.1 Lectura de credencials
-        4.2 Validació amb el model
-        4.3 Establiment de sessió
-        4.4 Redirecció final
-
-    5. Accés a registro.html
-    
-    ------------------------------------------------------ */
+------------------------------------------------------ */
 
 
 /* ------------------------------------------------------
-    1. Punt d’entrada (DOMContentLoaded)
-   ------------------------------------------------------
-    Esperem que el DOM estigui carregat perquè aquest fitxer
-    necessita recuperar inputs i botons. Això evita treballar
-    amb elements inexistents (null) i errors de runtime.
-    ------------------------------------------------------ */
+   1. Traça inicial de càrrega
+------------------------------------------------------ */
+UI.log("INDEX", "index.js carregat");
+
+
+/* ------------------------------------------------------
+   2. Inicialització quan el DOM està llest
+------------------------------------------------------ */
+/*
+   Aquest fitxer treballa directament amb el DOM. Per això esperem que
+   l'HTML estigui completament carregat abans de capturar elements o
+   afegir listeners.
+*/
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  console.log("index.js carregat correctament.");
-
-
   /* ------------------------------------------------------
-      2. Preparació del formulari
-    ------------------------------------------------------ 
-        2.1 Captura d’elements del DOM
-    ------------------------------------------------------
-        Guardem les referències del formulari per:
-        - millorar llegibilitat
-        - evitar repetir querySelector
-    ------------------------------------------------------ */
+     2.1 Captura d'elements del DOM
+  ------------------------------------------------------ */
+  /*
+     Centralitzem aquí tots els elements necessaris del formulari de login.
+     Això evita repetir cerques al DOM i deixa clar què necessita aquesta pantalla.
+  */
 
   const inputNomUsuari = document.querySelector("#username");
   const inputContrasenya = document.querySelector("#password");
   const botoLogin = document.querySelector("#loginButton");
   const botoRegistre = document.querySelector("#registration");
 
+
   /* ------------------------------------------------------
-        2.2 Comprovació mínima d’estructura
-     ------------------------------------------------------
-        Si falta algun element, aquest fitxer no pot complir la seva funció.
-        En aquest cas parem l’execució, perquè continuar generaria errors.
-     ------------------------------------------------------ */
+     2.2 Comprovació d'elements obligatoris
+  ------------------------------------------------------ */
+  /*
+     Si falta algun element essencial, parem l'execució.
+     Continuar amb elements null només portaria a errors difícils de seguir.
+  */
+
   const faltenElements = (
     !inputNomUsuari ||
     !inputContrasenya ||
@@ -76,100 +78,121 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 
   if (faltenElements) {
-    console.error("Falten elements del formulari de login. Revisa index.html (IDs).");
+    UI.error("INDEX", "Falten elements del formulari (revisa IDs a index.html)");
     return;
   }
 
 
   /* ------------------------------------------------------
-      3. Comprovació de sessió activa
-     ------------------------------------------------------
-     Si ja hi ha un usuari loguejat, no té sentit tornar a mostrar
-     el login. Redirigim directament a la pantalla principal.
-    ------------------------------------------------------ */
-  const usuariActual = User.obtenirUsuariActual();
+     2.3 Comprovació de sessió existent
+  ------------------------------------------------------ */
+  /*
+     Abans de mostrar el login, preguntem al model si ja hi ha una sessió activa.
+     La interfície no sap com es guarda la sessió; només interpreta el resultat.
+  */
 
-  if (usuariActual !== null) {
-    console.log("Sessió activa detectada. Usuari:", usuariActual);
+  const usernameSessio = User.obtenirUsuariActual();
+
+  UI.log("INDEX", "MODEL <- User.obtenirUsuariActual()", { usernameSessio });
+
+  if (usernameSessio) {
+    UI.log("INDEX", "Sessió existent -> redirect a indice.html");
     window.location.href = "./indice.html";
     return;
   }
 
 
   /* ------------------------------------------------------
-     4. Flux de login (click)
-    ------------------------------------------------------
-    Aquest bloc descriu el flux complet:
-    - llegir credencials
-    - validar amb el model
-    - guardar sessió
-    - redirigir
+     2.4 Gestió del login
   ------------------------------------------------------ */
-  botoLogin.addEventListener("click", () => {
+  /*
+     Aquí definim el flux principal del login: llegir credencials,
+     delegar validació al model i actuar segons el resultat.
+  */
 
-    console.log("Intent de login iniciat.");
+  botoLogin.addEventListener("click", (event) => {
+    event.preventDefault();
 
+    UI.log("INDEX", "EVENT <- click loginButton");
 
     /* ------------------------------------------------------
-        4.1 Lectura de credencials
-       ------------------------------------------------------
-        - Username: trim() per evitar que espais accidentals facin fallar el login.
-        - Password: es llegeix tal qual (no s’ha de modificar).
+       2.4.1 Lectura de credencials
     ------------------------------------------------------ */
-    const nomUsuariIntroduit = String(inputNomUsuari.value).trim();
-    const contrasenyaIntroduida = String(inputContrasenya.value);
+    /*
+       Normalitzem l'entrada abans d’enviar-la al model.
+       A la traça no mostrem la contrasenya, només informació de context.
+    */
+    const username = String(inputNomUsuari.value ?? "").trim();
+    const password = String(inputContrasenya.value ?? "");
+
+    UI.log("INDEX", "INPUT <- credencials capturades", {
+      username,
+      passwordLength: password.length
+    });
 
 
     /* ------------------------------------------------------
-        4.2 Validació
-       ------------------------------------------------------*/
-      
-    // Demanem que validi les credencials.
-    const resultatLogin = User.validarCredencials(
-      nomUsuariIntroduit,
-      contrasenyaIntroduida
-    );
+       2.4.2 Validació delegada al model
+    ------------------------------------------------------ */
+    /*
+       La interfície no decideix si un login és correcte.
+       Envia dades al model i interpreta el resultat retornat.
+    */
+   
+    const resultatLogin = User.validarCredencials(username, password);
+    UI.traceResult("INDEX", "MODEL validarCredencials()", resultatLogin);
 
     if (resultatLogin.ok === false) {
-      console.warn("Error de login:", resultatLogin.message);
-      alert(resultatLogin.message);
-      return;
-    }
-
-    console.log("Login correcte. Usuari autenticat:", resultatLogin.user.username);
-
-
-    /* ------------------------------------------------------
-        4.3 Establiment de sessió
-       ------------------------------------------------------ */
-
-    // Desem l’usuari actual a localStorage.
-    const sessioGuardada = User.establirUsuariActual(resultatLogin.user.username);
-
-    if (sessioGuardada === false) {
-      console.error("No s'ha pogut establir la sessió.");
-      alert("No s'ha pogut iniciar sessió.");
+      UI.alertResultat(resultatLogin, "No s'ha pogut iniciar sessió");
       return;
     }
 
 
     /* ------------------------------------------------------
-        4.4 Redirecció final
-       ------------------------------------------------------ */
-       // Tot ha anat bé: avisem i redirigim.
-    alert("Login correcte. Sessió iniciada.");
+       2.4.3 Establiment de sessió
+    ------------------------------------------------------ */
+    /*
+       Un cop validat el login, deleguem al model la gestió de la sessió.
+       La UI només comprova que l’operació ha anat bé.
+    */
+    const userPlain = resultatLogin?.data?.user;
+
+    if (!userPlain || !userPlain.username) {
+      UI.error("INDEX", "Usuari invàlid després del login", userPlain);
+      UI.alertMissatge("Error intern després del login");
+      return;
+    }
+
+    UI.alertMissatge(`Hola ${userPlain.username}, benvingut/da!`);
+
+    const resultatSessio = User.establirUsuariActual(userPlain.username);
+    UI.traceResult("INDEX", "MODEL establirUsuariActual()", resultatSessio);
+
+    if (resultatSessio.ok === false) {
+      UI.alertResultat(resultatSessio, "No s'ha pogut establir la sessió");
+      return;
+    }
+
+
+    /* ------------------------------------------------------
+       2.4.4 Redirecció final
+    ------------------------------------------------------ */
+    /*
+       Només redirigim quan la sessió ja està correctament establerta.
+    */
     window.location.href = "./indice.html";
   });
 
 
   /* ------------------------------------------------------
-     5. Accés a la pàgina de registre
-    ------------------------------------------------------
-     El botó “Nuevo usuario” redirigeix a registro.html
-     per permetre crear un nou compte.
+     2.5 Accés a registre
   ------------------------------------------------------ */
-  botoRegistre.addEventListener("click", () => {
-    console.log("Redirigint a registro.html...");
+  /*
+     Redirecció directa a la pantalla de registre.
+     No hi ha validació ni lògica addicional en aquest punt.
+  */
+  botoRegistre.addEventListener("click", (event) => {
+    event.preventDefault();
     window.location.href = "./registro.html";
   });
 
